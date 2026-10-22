@@ -1,335 +1,370 @@
+
 "use strict";
 
 const $ = (id) => document.getElementById(id);
 const BUILD_WEBSITE_URL = "https://sites.google.com/view/buildwebsitesbd-jihanstudiobd/home";
 
-let tabs = [];
-let activeTabId = null;
-let nextTabId = 1;
+function makePixelParticles() {
+  const container = $("pixelParticles");
+  if (!container || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-function currentTab() {
-  return tabs.find((tab) => tab.id === activeTabId) || null;
+  const count = window.innerWidth < 600 ? 12 : 22;
+
+  for (let i = 0; i < count; i++) {
+    const pixel = document.createElement("span");
+    pixel.className = "pixel-particle";
+    pixel.style.left = `${Math.random() * 100}%`;
+    pixel.style.setProperty("--duration", `${10 + Math.random() * 12}s`);
+    pixel.style.setProperty("--delay", `${-Math.random() * 18}s`);
+    pixel.style.setProperty("--drift", `${(Math.random() - 0.5) * 100}px`);
+    container.appendChild(pixel);
+  }
 }
 
-function createTab() {
-  const tab = {
-    id: nextTabId++,
-    title: "New Tab",
-    url: "",
-    history: [],
-    historyIndex: -1
-  };
-  tabs.push(tab);
-  activeTabId = tab.id;
-  renderTabs();
-  showHome();
-  return tab;
-}
+const app = {
+  tabs: [],
+  activeId: 0,
+  nextId: 1,
 
-function renderTabs() {
-  const list = $("tabList");
-  list.replaceChildren();
+  current() {
+    return this.tabs.find((tab) => tab.id === this.activeId) || null;
+  },
 
-  tabs.forEach((tab) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "tab" + (tab.id === activeTabId ? " active" : "");
-    button.title = tab.title;
-
-    const title = document.createElement("span");
-    title.className = "tab-title";
-    title.textContent = tab.title;
-
-    const close = document.createElement("span");
-    close.className = "tab-close";
-    close.textContent = "×";
-    close.title = "Close tab";
-    close.setAttribute("role", "button");
-    close.setAttribute("tabindex", "0");
-    close.setAttribute("aria-label", "Close " + tab.title);
-
-    const closeThisTab = (event) => {
-      event.stopPropagation();
-      removeTab(tab.id);
+  createTab() {
+    const tab = {
+      id: this.nextId++,
+      title: "New Tab",
+      url: "",
+      history: [],
+      historyIndex: -1
     };
 
-    close.addEventListener("click", closeThisTab);
-    close.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        event.preventDefault();
-        closeThisTab(event);
-      }
+    this.tabs.push(tab);
+    this.activeId = tab.id;
+    this.renderTabs();
+    this.showHome();
+  },
+
+  renderTabs() {
+    const list = $("tabList");
+    if (!list) return;
+
+    list.replaceChildren();
+
+    this.tabs.forEach((tab) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `tab${tab.id === this.activeId ? " active" : ""}`;
+      button.title = tab.title;
+
+      const title = document.createElement("span");
+      title.className = "tab-title";
+      title.textContent = tab.title;
+
+      const close = document.createElement("span");
+      close.className = "tab-close";
+      close.textContent = "×";
+      close.title = "Close tab";
+      close.setAttribute("role", "button");
+      close.tabIndex = 0;
+      close.setAttribute("aria-label", `Close ${tab.title}`);
+
+      const closeTab = (event) => {
+        event.stopPropagation();
+        this.removeTab(tab.id);
+      };
+
+      close.addEventListener("click", closeTab);
+
+      close.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          closeTab(event);
+        }
+      });
+
+      button.addEventListener("click", () => this.switchTab(tab.id));
+      button.append(title, close);
+      list.appendChild(button);
     });
 
-    button.addEventListener("click", () => switchTab(tab.id));
-    button.append(title, close);
-    list.appendChild(button);
-  });
+    const tab = this.current();
 
-  const tab = currentTab();
-  $("backButton").disabled = !tab || tab.historyIndex <= 0;
-  $("forwardButton").disabled = !tab || tab.historyIndex >= tab.history.length - 1;
-}
+    if ($("backButton")) {
+      $("backButton").disabled = !tab || tab.historyIndex <= 0;
+    }
 
-function removeTab(id) {
-  const index = tabs.findIndex((tab) => tab.id === id);
-  if (index < 0) return;
+    if ($("forwardButton")) {
+      $("forwardButton").disabled = !tab || tab.historyIndex >= tab.history.length - 1;
+    }
+  },
 
-  const wasActive = tabs[index].id === activeTabId;
-  tabs.splice(index, 1);
+  removeTab(id) {
+    const index = this.tabs.findIndex((tab) => tab.id === id);
+    if (index < 0) return;
 
-  if (!tabs.length) {
-    createTab();
-    return;
-  }
+    const wasActive = this.activeId === id;
+    this.tabs.splice(index, 1);
 
-  if (wasActive) {
-    activeTabId = tabs[Math.max(0, index - 1)].id;
-  }
+    if (!this.tabs.length) {
+      this.createTab();
+      return;
+    }
 
-  renderTabs();
-  switchTab(activeTabId);
-}
+    if (wasActive) {
+      this.activeId = this.tabs[Math.max(0, index - 1)].id;
+    }
 
-function switchTab(id) {
-  const tab = tabs.find((item) => item.id === id);
-  if (!tab) return;
+    this.renderTabs();
+    this.switchTab(this.activeId);
+  },
 
-  activeTabId = id;
-  renderTabs();
+  switchTab(id) {
+    const tab = this.tabs.find((item) => item.id === id);
+    if (!tab) return;
 
-  if (tab.url) showPage(tab.url);
-  else showHome();
-}
+    this.activeId = id;
+    this.renderTabs();
 
-function hideAllPages() {
-  $("homeScreen").hidden = true;
-  $("creditsPage").hidden = true;
-  $("pageScreen").hidden = true;
-}
+    if (tab.url) {
+      this.showPage(tab.url);
+    } else {
+      this.showHome();
+    }
+  },
 
-function showHome() {
-  hideAllPages();
-  $("homeScreen").hidden = false;
-  $("addressInput").value = "";
-  $("searchInput").value = "";
-  renderTabs();
-}
+  hideViews() {
+    if ($("homeScreen")) $("homeScreen").hidden = true;
+    if ($("pageScreen")) $("pageScreen").hidden = true;
+  },
 
-function showCredits() {
-  hideAllPages();
-  $("creditsPage").hidden = false;
-  renderTabs();
-}
+  showHome() {
+    this.hideViews();
 
-function showPage(url) {
-  hideAllPages();
-  $("pageScreen").hidden = false;
-  $("webFrame").src = url;
-  $("addressInput").value = url;
+    if ($("homeScreen")) $("homeScreen").hidden = false;
+    if ($("addressInput")) $("addressInput").value = "";
+    if ($("searchInput")) $("searchInput").value = "";
 
-  const status = document.querySelector(".status-text");
-  if (status) status.textContent = "Viewing " + getHost(url);
-}
+    this.renderTabs();
+  },
 
-function getHost(url) {
-  try {
-    return new URL(url).hostname.replace(/^www\./i, "");
-  } catch {
-    return "Website";
-  }
-}
+  showPage(url) {
+    this.hideViews();
 
-function searchResult(query) {
-  return {
-    url: "https://www.google.com/search?q=" + encodeURIComponent(query),
-    title: "Google Search"
-  };
-}
+    if ($("pageScreen")) $("pageScreen").hidden = false;
+    if ($("webFrame")) $("webFrame").src = url;
+    if ($("addressInput")) $("addressInput").value = url;
 
-function resolveAddress(value) {
-  const input = value.trim();
-  if (!input) return null;
+    const status = document.querySelector(".status-text");
 
-  if (/^build\s+website\s+bd$/i.test(input)) {
-    return { url: BUILD_WEBSITE_URL, title: "Build Website BD" };
-  }
+    if (status) {
+      try {
+        status.textContent = `Viewing ${new URL(url).hostname.replace(/^www\./i, "")}`;
+      } catch {
+        status.textContent = "Website view";
+      }
+    }
+  },
 
-  if (/^https?:\/\//i.test(input)) {
-    try {
-      const parsed = new URL(input);
-      if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+  resolve(value) {
+    const input = value.trim();
+    if (!input) return null;
+
+    if (/^build\s+website\s+bd$/i.test(input)) {
+      return {
+        url: BUILD_WEBSITE_URL,
+        title: "Build Website BD"
+      };
+    }
+
+    if (/^https?:\/\//i.test(input)) {
+      try {
+        const parsed = new URL(input);
+
+        if (["https:", "http:"].includes(parsed.protocol)) {
+          return {
+            url: parsed.href,
+            title: parsed.hostname.replace(/^www\./i, "")
+          };
+        }
+      } catch {
+        return this.search(input);
+      }
+    }
+
+    if (!/\s/.test(input) && /^(localhost|[\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/i.test(input)) {
+      try {
+        const parsed = new URL(`https://${input}`);
+
         return {
           url: parsed.href,
           title: parsed.hostname.replace(/^www\./i, "")
         };
+      } catch {
+        return this.search(input);
       }
-    } catch {
-      return searchResult(input);
     }
-  }
 
-  if (!/\s/.test(input) && /^(localhost|[\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/i.test(input)) {
+    return this.search(input);
+  },
+
+  search(value) {
+    return {
+      url: `https://www.google.com/search?q=${encodeURIComponent(value)}`,
+      title: "Google Search"
+    };
+  },
+
+  navigate(value) {
+    const result = this.resolve(value);
+
+    if (!result) {
+      if ($("addressInput")) $("addressInput").focus();
+      return;
+    }
+
+    let tab = this.current();
+
+    if (!tab) {
+      this.createTab();
+      tab = this.current();
+    }
+
+    tab.history = tab.history.slice(0, tab.historyIndex + 1);
+    tab.history.push(result.url);
+    tab.historyIndex = tab.history.length - 1;
+    tab.url = result.url;
+    tab.title = result.title || this.host(result.url);
+
+    this.renderTabs();
+    this.showPage(result.url);
+  },
+
+  host(url) {
     try {
-      const parsed = new URL("https://" + input);
-      return {
-        url: parsed.href,
-        title: parsed.hostname.replace(/^www\./i, "")
-      };
+      return new URL(url).hostname.replace(/^www\./i, "");
     } catch {
-      return searchResult(input);
+      return "Website";
+    }
+  },
+
+  back() {
+    const tab = this.current();
+    if (!tab || tab.historyIndex <= 0) return;
+
+    tab.historyIndex--;
+    tab.url = tab.history[tab.historyIndex];
+    tab.title = this.host(tab.url);
+
+    this.renderTabs();
+    this.showPage(tab.url);
+  },
+
+  forward() {
+    const tab = this.current();
+
+    if (!tab || tab.historyIndex >= tab.history.length - 1) return;
+
+    tab.historyIndex++;
+    tab.url = tab.history[tab.historyIndex];
+    tab.title = this.host(tab.url);
+
+    this.renderTabs();
+    this.showPage(tab.url);
+  },
+
+  home() {
+    const tab = this.current();
+
+    if (tab) {
+      tab.url = "";
+      tab.title = "New Tab";
+    }
+
+    this.showHome();
+  },
+
+  refresh() {
+    const tab = this.current();
+
+    if (tab && tab.url && $("webFrame")) {
+      $("webFrame").src = tab.url;
+    } else {
+      this.showHome();
+    }
+  },
+
+  openOutside() {
+    const tab = this.current();
+
+    if (tab && tab.url) {
+      window.open(tab.url, "_blank", "noopener,noreferrer");
     }
   }
+};
 
-  return searchResult(input);
+function bindIfPresent(id, eventName, callback) {
+  const element = $(id);
+  if (element) element.addEventListener(eventName, callback);
 }
 
-function navigate(value) {
-  const result = resolveAddress(value);
-  if (!result) {
-    $("addressInput").focus();
-    return;
-  }
-
-  let tab = currentTab();
-  if (!tab) tab = createTab();
-
-  tab.history = tab.history.slice(0, tab.historyIndex + 1);
-  tab.history.push(result.url);
-  tab.historyIndex = tab.history.length - 1;
-  tab.url = result.url;
-  tab.title = result.title || getHost(result.url);
-
-  renderTabs();
-  showPage(result.url);
-}
-
-function goBack() {
-  const tab = currentTab();
-  if (!tab || tab.historyIndex <= 0) return;
-
-  tab.historyIndex--;
-  tab.url = tab.history[tab.historyIndex];
-  tab.title = getHost(tab.url);
-
-  renderTabs();
-  showPage(tab.url);
-}
-
-function goForward() {
-  const tab = currentTab();
-  if (!tab || tab.historyIndex >= tab.history.length - 1) return;
-
-  tab.historyIndex++;
-  tab.url = tab.history[tab.historyIndex];
-  tab.title = getHost(tab.url);
-
-  renderTabs();
-  showPage(tab.url);
-}
-
-function goHome() {
-  const tab = currentTab();
-  if (tab) {
-    tab.url = "";
-    tab.title = "New Tab";
-  }
-  showHome();
-}
-
-function refreshPage() {
-  const tab = currentTab();
-  if (!tab || !tab.url) {
-    showHome();
-    return;
-  }
-  $("webFrame").src = tab.url;
-}
-
-function openOutside() {
-  const tab = currentTab();
-  if (!tab || !tab.url) return;
-  window.open(tab.url, "_blank", "noopener,noreferrer");
-}
-
-$("addressForm").addEventListener("submit", (event) => {
+bindIfPresent("addressForm", "submit", (event) => {
   event.preventDefault();
-  navigate($("addressInput").value);
+  app.navigate($("addressInput").value);
 });
 
-$("searchForm").addEventListener("submit", (event) => {
+bindIfPresent("searchForm", "submit", (event) => {
   event.preventDefault();
-  navigate($("searchInput").value);
+  app.navigate($("searchInput").value);
 });
 
-$("backButton").addEventListener("click", goBack);
-$("forwardButton").addEventListener("click", goForward);
-$("refreshButton").addEventListener("click", refreshPage);
-$("homeButton").addEventListener("click", goHome);
-$("externalButton").addEventListener("click", openOutside);
-$("noticeOpenButton").addEventListener("click", openOutside);
-$("topNewTab").addEventListener("click", createTab);
+bindIfPresent("backButton", "click", () => app.back());
+bindIfPresent("forwardButton", "click", () => app.forward());
+bindIfPresent("refreshButton", "click", () => app.refresh());
+bindIfPresent("homeButton", "click", () => app.home());
+bindIfPresent("externalButton", "click", () => app.openOutside());
+bindIfPresent("noticeOpenButton", "click", () => app.openOutside());
+bindIfPresent("newTabButton", "click", () => app.createTab());
 
-$("brandHome").addEventListener("click", (event) => {
-  event.preventDefault();
-  goHome();
+bindIfPresent("brandHome", "click", (event) => {
+  if ($("homeScreen")) {
+    event.preventDefault();
+    app.home();
+  }
 });
 
-$("openCreditsButton").addEventListener("click", showCredits);
-$("backToHomeButton").addEventListener("click", goHome);
-$("creditsHomeButton").addEventListener("click", goHome);
-
-document.querySelectorAll(".quick-link").forEach((button) => {
-  button.addEventListener("click", () => navigate(button.dataset.url || ""));
+document.querySelectorAll(".quick-link[data-url]").forEach((button) => {
+  button.addEventListener("click", () => {
+    app.navigate(button.dataset.url || "");
+  });
 });
 
 document.addEventListener("keydown", (event) => {
   const mac = navigator.platform.toLowerCase().includes("mac");
   const modifier = mac ? event.metaKey : event.ctrlKey;
 
-  if (modifier && event.key.toLowerCase() === "l") {
+  if (modifier && event.key.toLowerCase() === "l" && $("addressInput")) {
     event.preventDefault();
     $("addressInput").focus();
     $("addressInput").select();
   }
 
-  if (modifier && event.key.toLowerCase() === "t") {
+  if (modifier && event.key.toLowerCase() === "t" && $("newTabButton")) {
     event.preventDefault();
-    createTab();
+    app.createTab();
   }
 
   if (event.altKey && event.key === "ArrowLeft") {
-    event.preventDefault();
-    goBack();
+    app.back();
   }
 
   if (event.altKey && event.key === "ArrowRight") {
-    event.preventDefault();
-    goForward();
-  }
-
-  if (event.key === "Escape" && !$("creditsPage").hidden) {
-    goHome();
+    app.forward();
   }
 });
 
-function createParticles() {
-  const container = $("shaderParticles");
-  if (!container || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+makePixelParticles();
 
-  const count = window.innerWidth < 600 ? 18 : 32;
-
-  for (let i = 0; i < count; i++) {
-    const particle = document.createElement("span");
-    particle.className = "particle";
-    particle.style.left = (Math.random() * 100) + "%";
-    particle.style.setProperty("--duration", (9 + Math.random() * 12) + "s");
-    particle.style.setProperty("--delay", (-Math.random() * 18) + "s");
-    particle.style.setProperty("--drift", ((Math.random() - 0.5) * 130) + "px");
-    particle.style.opacity = (0.15 + Math.random() * 0.35).toFixed(2);
-    container.appendChild(particle);
-  }
+if ($("tabList")) {
+  app.createTab();
 }
-
-createParticles();
-createTab();
