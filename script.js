@@ -16,13 +16,13 @@ function makeParticles() {
   const amount = window.innerWidth < 650 ? 12 : 24;
 
   for (let i = 0; i < amount; i++) {
-    const particle = document.createElement("span");
-    particle.className = "pixel";
-    particle.style.left = `${Math.random() * 100}%`;
-    particle.style.setProperty("--duration", `${9 + Math.random() * 12}s`);
-    particle.style.setProperty("--delay", `${-Math.random() * 18}s`);
-    particle.style.setProperty("--drift", `${(Math.random() - 0.5) * 100}px`);
-    layer.appendChild(particle);
+    const pixel = document.createElement("span");
+    pixel.className = "pixel";
+    pixel.style.left = `${Math.random() * 100}%`;
+    pixel.style.setProperty("--duration", `${9 + Math.random() * 12}s`);
+    pixel.style.setProperty("--delay", `${-Math.random() * 18}s`);
+    pixel.style.setProperty("--drift", `${(Math.random() - 0.5) * 100}px`);
+    layer.appendChild(pixel);
   }
 }
 
@@ -43,6 +43,7 @@ const browser = {
       history: [],
       historyIndex: -1
     };
+
     this.tabs.push(tab);
     this.activeId = tab.id;
     this.renderTabs();
@@ -79,6 +80,7 @@ const browser = {
       };
 
       close.addEventListener("click", closeTab);
+
       close.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
@@ -92,8 +94,14 @@ const browser = {
     });
 
     const tab = this.current();
-    if ($("backButton")) $("backButton").disabled = !tab || tab.historyIndex <= 0;
-    if ($("forwardButton")) $("forwardButton").disabled = !tab || tab.historyIndex >= tab.history.length - 1;
+
+    if ($("backButton")) {
+      $("backButton").disabled = !tab || tab.historyIndex <= 0;
+    }
+
+    if ($("forwardButton")) {
+      $("forwardButton").disabled = !tab || tab.historyIndex >= tab.history.length - 1;
+    }
   },
 
   removeTab(id) {
@@ -108,7 +116,10 @@ const browser = {
       return;
     }
 
-    if (wasActive) this.activeId = this.tabs[Math.max(0, index - 1)].id;
+    if (wasActive) {
+      this.activeId = this.tabs[Math.max(0, index - 1)].id;
+    }
+
     this.renderTabs();
     this.switchTab(this.activeId);
   },
@@ -119,8 +130,12 @@ const browser = {
 
     this.activeId = id;
     this.renderTabs();
-    if (tab.url) this.showPage(tab.url);
-    else this.showHome();
+
+    if (tab.url) {
+      this.showPage(tab.url);
+    } else {
+      this.showHome();
+    }
   },
 
   hideViews() {
@@ -130,19 +145,23 @@ const browser = {
 
   showHome() {
     this.hideViews();
+
     if ($("homeScreen")) $("homeScreen").hidden = false;
     if ($("addressInput")) $("addressInput").value = "";
     if ($("searchInput")) $("searchInput").value = "";
+
     this.renderTabs();
   },
 
   showPage(url) {
     this.hideViews();
+
     if ($("pageScreen")) $("pageScreen").hidden = false;
     if ($("webFrame")) $("webFrame").src = url;
     if ($("addressInput")) $("addressInput").value = url;
 
     const status = document.querySelector(".status-text");
+
     if (status) {
       try {
         status.textContent = "Viewing " + new URL(url).hostname.replace(/^www\./i, "");
@@ -154,6 +173,7 @@ const browser = {
 
   searchUrl(query) {
     const engine = $("searchEngine") ? $("searchEngine").value : "google";
+
     const base = engine === "bing"
       ? "https://www.bing.com/search?q="
       : "https://www.google.com/search?q=";
@@ -169,12 +189,16 @@ const browser = {
     if (!input) return null;
 
     if (/^build\s+website\s+bd$/i.test(input)) {
-      return { url: BUILD_WEBSITE_URL, title: "Build Website BD" };
+      return {
+        url: BUILD_WEBSITE_URL,
+        title: "Build Website BD"
+      };
     }
 
     if (!alwaysSearch && /^https?:\/\//i.test(input)) {
       try {
         const parsed = new URL(input);
+
         if (parsed.protocol === "https:" || parsed.protocol === "http:") {
           return {
             url: parsed.href,
@@ -190,6 +214,7 @@ const browser = {
         /^(localhost|[\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/i.test(input)) {
       try {
         const parsed = new URL("https://" + input);
+
         return {
           url: parsed.href,
           title: parsed.hostname.replace(/^www\./i, "")
@@ -204,12 +229,14 @@ const browser = {
 
   navigate(value, alwaysSearch = false) {
     const result = this.resolve(value, alwaysSearch);
+
     if (!result) {
       if ($("addressInput")) $("addressInput").focus();
       return;
     }
 
     let tab = this.current();
+
     if (!tab) {
       this.createTab();
       tab = this.current();
@@ -225,28 +252,6 @@ const browser = {
     this.showPage(result.url);
   },
 
-  back() {
-    const tab = this.current();
-    if (!tab || tab.historyIndex <= 0) return;
-
-    tab.historyIndex--;
-    tab.url = tab.history[tab.historyIndex];
-    tab.title = this.host(tab.url);
-    this.renderTabs();
-    this.showPage(tab.url);
-  },
-
-  forward() {
-    const tab = this.current();
-    if (!tab || tab.historyIndex >= tab.history.length - 1) return;
-
-    tab.historyIndex++;
-    tab.url = tab.history[tab.historyIndex];
-    tab.title = this.host(tab.url);
-    this.renderTabs();
-    this.showPage(tab.url);
-  },
-
   host(url) {
     try {
       return new URL(url).hostname.replace(/^www\./i, "");
@@ -255,17 +260,45 @@ const browser = {
     }
   },
 
+  back() {
+    const tab = this.current();
+    if (!tab || tab.historyIndex <= 0) return;
+
+    tab.historyIndex--;
+    tab.url = tab.history[tab.historyIndex];
+    tab.title = this.host(tab.url);
+
+    this.renderTabs();
+    this.showPage(tab.url);
+  },
+
+  forward() {
+    const tab = this.current();
+
+    if (!tab || tab.historyIndex >= tab.history.length - 1) return;
+
+    tab.historyIndex++;
+    tab.url = tab.history[tab.historyIndex];
+    tab.title = this.host(tab.url);
+
+    this.renderTabs();
+    this.showPage(tab.url);
+  },
+
   home() {
     const tab = this.current();
+
     if (tab) {
       tab.url = "";
       tab.title = "New Tab";
     }
+
     this.showHome();
   },
 
   refresh() {
     const tab = this.current();
+
     if (tab && tab.url && $("webFrame")) {
       $("webFrame").src = tab.url;
     } else {
@@ -275,6 +308,7 @@ const browser = {
 
   openOutside() {
     const tab = this.current();
+
     if (tab && tab.url) {
       window.open(tab.url, "_blank", "noopener,noreferrer");
     }
@@ -331,4 +365,6 @@ document.addEventListener("keydown", (event) => {
 
 makeParticles();
 
-if ($("tabList")) browser.createTab();
+if ($("tabList")) {
+  browser.createTab();
+}
