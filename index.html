@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101010">
+  <meta name="description" content="J Browser — a simple, clean way to browse the web.">
+  <title>J Browser</title>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="browser">
+
+    <header class="topbar">
+      <a class="brand" href="#" id="brandHome" aria-label="J Browser Home">
+        <span class="brand-j">J</span>
+        <span>Browser</span>
+      </a>
+
+      <div class="top-right">
+        <span class="status-dot"></span>
+        <span class="status-text">Ready to browse</span>
+        <button class="small-button" id="topNewTab" aria-label="New tab" title="New tab">+</button>
+      </div>
+    </header>
+
+    <div class="tabs" id="tabList" aria-label="Browser tabs"></div>
+
+    <nav class="toolbar" aria-label="Browser navigation">
+      <button class="nav-button" id="backButton" title="Back" aria-label="Back">←</button>
+      <button class="nav-button" id="forwardButton" title="Forward" aria-label="Forward">→</button>
+      <button class="nav-button" id="refreshButton" title="Refresh" aria-label="Refresh">⟳</button>
+      <button class="nav-button home-button" id="homeButton" title="Home" aria-label="Home">⌂</button>
+
+      <form class="address-bar" id="addressForm">
+        <svg class="address-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="10.8" cy="10.8" r="6.8"></circle>
+          <path d="m16 16 4.3 4.3"></path>
+        </svg>
+        <input
+          id="addressInput"
+          type="text"
+          placeholder="Search Google or enter a website"
+          autocomplete="off"
+          spellcheck="false"
+          aria-label="Search or website address"
+        >
+        <button class="go-button" type="submit">Go</button>
+      </form>
+
+      <button class="nav-button external-button" id="externalButton" title="Open website in a new tab" aria-label="Open externally">↗</button>
+      <button class="nav-button add-button" id="newTabButton" title="New tab" aria-label="New tab">+</button>
+    </nav>
+
+    <main class="viewport">
+      <section class="home-screen" id="homeScreen">
+        <div class="hero">
+          <div class="hero-logo-frame">
+            <img class="hero-logo" src="logo.png" alt="J Browser logo">
+          </div>
+          <h1>J <span>Browser</span></h1>
+          <p class="tagline">A simpler way to explore the web.</p>
+        </div>
+
+        <form class="search-box" id="searchForm">
+          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="10.8" cy="10.8" r="6.8"></circle>
+            <path d="m16 16 4.3 4.3"></path>
+          </svg>
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Search Google or enter a website..."
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Search Google or enter a website"
+          >
+          <button type="submit" class="search-submit" aria-label="Search">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h13M12 6l6 6-6 6"></path>
+            </svg>
+          </button>
+        </form>
+
+        <div class="quick-links">
+          <button class="quick-link" data-url="https://www.google.com" type="button">
+            <span class="quick-icon google-icon">G</span>
+            <span>Google</span>
+          </button>
+
+          <button class="quick-link" data-url="https://www.youtube.com" type="button">
+            <span class="quick-icon youtube-icon">▶</span>
+            <span>YouTube</span>
+          </button>
+
+          <button class="quick-link" data-url="https://www.wikipedia.org" type="button">
+            <span class="quick-icon wiki-icon">W</span>
+            <span>Wikipedia</span>
+          </button>
+
+          <button class="quick-link" data-url="https://github.com" type="button">
+            <span class="quick-icon github-icon">GH</span>
+            <span>GitHub</span>
+          </button>
+        </div>
+
+        <p class="home-note">
+          Simple design. Your next destination starts here.
+        </p>
+      </section>
+
+      <section class="page-screen" id="pageScreen" hidden>
+        <iframe
+          id="webFrame"
+          title="Website content"
+          referrerpolicy="strict-origin-when-cross-origin"
+        ></iframe>
+        <div class="frame-notice">
+          Some websites do not allow embedded viewing.
+          <button type="button" id="noticeOpenButton">Open this website externally</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>J Browser</span>
+      <span>Simple by design</span>
+    </footer>
+
+  </div>
+</body>
+</html>
