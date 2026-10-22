@@ -1,321 +1,332 @@
-const $ = id => document.getElementById(id);
+
+"use strict";
+
+const $ = (id) => document.getElementById(id);
+
+const BUILD_WEBSITE_URL = "https://sites.google.com/view/buildwebsitesbd-jihanstudiobd/home";
+const HOME_URL = "about:blank";
 
 let tabs = [];
-let activeTabId = 0;
+let activeTabId = null;
 let nextTabId = 1;
 
+function currentTab() {
+  return tabs.find((tab) => tab.id === activeTabId) || null;
+}
+
 function createTab() {
-  return {
+  const tab = {
     id: nextTabId++,
     title: "New Tab",
     url: "",
     history: [],
     historyIndex: -1
   };
-}
-
-function currentTab() {
-  return tabs.find(tab => tab.id === activeTabId);
-}
-
-function updateStatus(message) {
-  const status = document.querySelector(".status-text");
-  if (status) status.textContent = message;
-}
-
-function renderTabs() {
-  const container = $("tabList");
-  container.replaceChildren();
-
-  tabs.forEach(tab => {
-    const item = document.createElement("div");
-    item.className = "tab" + (tab.id === activeTabId ? " active" : "");
-    item.setAttribute("role", "tab");
-    item.setAttribute("aria-selected", String(tab.id === activeTabId));
-
-    const label = document.createElement("span");
-    label.className = "tab-label";
-    label.textContent = tab.title;
-
-    const close = document.createElement("button");
-    close.className = "tab-close";
-    close.type = "button";
-    close.textContent = "×";
-    close.title = "Close tab";
-    close.setAttribute("aria-label", "Close " + tab.title);
-
-    close.addEventListener("click", event => {
-      event.stopPropagation();
-      closeTab(tab.id);
-    });
-
-    item.append(label, close);
-
-    item.addEventListener("click", () => {
-      activateTab(tab.id);
-    });
-
-    container.appendChild(item);
-  });
-}
-
-function activateTab(id) {
-  activeTabId = id;
-  renderTabs();
-  displayCurrentTab();
-
-  const tab = currentTab();
-
-  if (tab && tab.url) {
-    openOutside(tab.url);
-  }
-}
-
-function displayCurrentTab() {
-  const tab = currentTab();
-
-  if (!tab) return;
-
-  $("homeScreen").hidden = false;
-  $("pageScreen").hidden = true;
-  $("webFrame").src = "about:blank";
-  $("addressInput").value = tab.url;
-
-  updateStatus(tab.url ? "Destination ready" : "Ready to browse");
-}
-
-function newTab() {
-  const tab = createTab();
 
   tabs.push(tab);
   activeTabId = tab.id;
-
   renderTabs();
-  displayCurrentTab();
-
-  $("addressInput").value = "";
-  $("addressInput").focus();
+  showHome();
+  return tab;
 }
 
-function closeTab(id) {
-  if (tabs.length === 1) {
-    tabs = [createTab()];
-    activeTabId = tabs[0].id;
+function renderTabs() {
+  const tabList = $("tabList");
+  tabList.replaceChildren();
+
+  tabs.forEach((tab) => {
+    const tabButton = document.createElement("button");
+    tabButton.type = "button";
+    tabButton.className = "tab" + (tab.id === activeTabId ? " active" : "");
+    tabButton.title = tab.title;
+    tabButton.setAttribute("aria-label", "Switch to " + tab.title);
+
+    const tabTitle = document.createElement("span");
+    tabTitle.className = "tab-title";
+    tabTitle.textContent = tab.title;
+
+    const closeButton = document.createElement("span");
+    closeButton.className = "tab-close";
+    closeButton.textContent = "×";
+    closeButton.title = "Close tab";
+    closeButton.setAttribute("role", "button");
+    closeButton.setAttribute("aria-label", "Close " + tab.title);
+    closeButton.tabIndex = 0;
+
+    const closeTab = (event) => {
+      event.stopPropagation();
+      removeTab(tab.id);
+    };
+
+    closeButton.addEventListener("click", closeTab);
+    closeButton.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        closeTab(event);
+      }
+    });
+
+    tabButton.addEventListener("click", () => {
+      switchTab(tab.id);
+    });
+
+    tabButton.append(tabTitle, closeButton);
+    tabList.appendChild(tabButton);
+  });
+
+  $("backButton").disabled = !currentTab() || currentTab().historyIndex <= 0;
+  $("forwardButton").disabled =
+    !currentTab() ||
+    currentTab().historyIndex >= currentTab().history.length - 1;
+}
+
+function switchTab(id) {
+  const tab = tabs.find((item) => item.id === id);
+  if (!tab) return;
+
+  activeTabId = id;
+  renderTabs();
+
+  if (tab.url) {
+    showPage(tab.url, false);
   } else {
-    const index = tabs.findIndex(tab => tab.id === id);
+    showHome();
+  }
+}
 
-    tabs = tabs.filter(tab => tab.id !== id);
+function removeTab(id) {
+  const index = tabs.findIndex((tab) => tab.id === id);
+  if (index === -1) return;
 
-    if (activeTabId === id) {
-      const newIndex = Math.max(0, index - 1);
-      activeTabId = tabs[newIndex].id;
-    }
+  const wasActive = tabs[index].id === activeTabId;
+  tabs.splice(index, 1);
+
+  if (tabs.length === 0) {
+    createTab();
+    return;
+  }
+
+  if (wasActive) {
+    const nextTab = tabs[Math.max(0, index - 1)];
+    activeTabId = nextTab.id;
   }
 
   renderTabs();
-  displayCurrentTab();
+  switchTab(activeTabId);
+}
+
+function showHome() {
+  $("homeScreen").hidden = false;
+  $("pageScreen").hidden = true;
+  $("addressInput").value = "";
+  $("searchInput").value = "";
+  renderTabs();
+}
+
+function showPage(url, updateAddress = true) {
+  $("homeScreen").hidden = true;
+  $("pageScreen").hidden = false;
+  $("webFrame").src = url;
+
+  if (updateAddress) {
+    $("addressInput").value = url;
+  }
+
+  const tab = currentTab();
+  if (tab) {
+    $("statusText");
+    const status = document.querySelector(".status-text");
+    if (status) status.textContent = "Viewing " + getHost(url);
+  }
+}
+
+function getHost(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./i, "");
+  } catch {
+    return "Website";
+  }
 }
 
 function resolveAddress(value) {
-  const input = value.trim();
+  const text = value.trim();
+  if (!text) return null;
 
-  if (!input) return null;
-
-  const normalizedInput = input
-    .toLowerCase()
-    .replace(/\s+/g, " ");
-
-  if (normalizedInput === "build website bd") {
+  if (/^build\s+website\s+bd$/i.test(text)) {
     return {
-      url: "https://sites.google.com/view/buildwebsitesbd-jihanstudiobd/home",
-      search: false
+      url: BUILD_WEBSITE_URL,
+      title: "Build Website BD"
     };
   }
 
-  if (/^[a-z][a-z\d+.-]*:\/\//i.test(input)) {
+  if (/^https?:\/\//i.test(text)) {
     try {
-      const parsed = new URL(input);
-
-      if (
-        parsed.protocol === "http:" ||
-        parsed.protocol === "https:"
-      ) {
+      const parsed = new URL(text);
+      if (parsed.protocol === "http:" || parsed.protocol === "https:") {
         return {
           url: parsed.href,
-          search: false
+          title: parsed.hostname.replace(/^www\./i, "")
         };
       }
     } catch {
-      return null;
+      return searchUrl(text);
     }
-
-    return null;
   }
 
-  const isDomain =
-    /^(localhost|(\d{1,3}\.){3}\d{1,3})(:\d+)?([/?#].*)?$/i.test(input) ||
-    /^[^\s./]+\.[a-z]{2,}(?::\d+)?(?:[/?#][^\s]*)?$/i.test(input);
-
-  if (isDomain) {
-    return {
-      url: "https://" + input,
-      search: false
-    };
+  if (/^(localhost|[\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/i.test(text) &&
+      !/\s/.test(text)) {
+    try {
+      const parsed = new URL("https://" + text);
+      return {
+        url: parsed.href,
+        title: parsed.hostname.replace(/^www\./i, "")
+      };
+    } catch {
+      return searchUrl(text);
+    }
   }
 
-  return {
-    url: "https://www.google.com/search?q=" + encodeURIComponent(input),
-    search: true
-  };
+  return searchUrl(text);
 }
 
-function openOutside(url) {
-  if (!url) return;
-
-  const newWindow = window.open(url, "_blank");
-
-  if (newWindow) {
-    newWindow.opener = null;
-    updateStatus("Opened in a new tab");
-  } else {
-    updateStatus("Opening destination");
-    window.location.href = url;
-  }
+function searchUrl(text) {
+  return {
+    url: "https://www.google.com/search?q=" + encodeURIComponent(text),
+    title: "Google Search"
+  };
 }
 
 function navigate(value) {
   const result = resolveAddress(value);
-
   if (!result) {
-    updateStatus("Enter a valid website or search");
     $("addressInput").focus();
     return;
   }
 
-  const tab = currentTab();
-
-  if (!tab) return;
+  let tab = currentTab();
+  if (!tab) tab = createTab();
 
   tab.history = tab.history.slice(0, tab.historyIndex + 1);
   tab.history.push(result.url);
   tab.historyIndex = tab.history.length - 1;
   tab.url = result.url;
-
-  try {
-    const hostname = new URL(result.url).hostname;
-    tab.title = result.search
-      ? "Google Search"
-      : hostname.replace(/^www\./, "");
-  } catch {
-    tab.title = "Website";
-  }
+  tab.title = result.title || getHost(result.url);
 
   renderTabs();
-  displayCurrentTab();
-  openOutside(result.url);
+  showPage(result.url);
 }
 
 function goHome() {
   const tab = currentTab();
-
-  if (!tab) return;
-
-  tab.title = "New Tab";
-  tab.url = "";
-  tab.history = [];
-  tab.historyIndex = -1;
-
-  renderTabs();
-  displayCurrentTab();
-
-  $("addressInput").value = "";
-  $("searchInput").value = "";
-  updateStatus("Ready to browse");
+  if (tab) {
+    tab.url = "";
+    tab.title = "New Tab";
+  }
+  showHome();
 }
 
 function goBack() {
   const tab = currentTab();
-
-  if (!tab || tab.historyIndex <= 0) {
-    updateStatus("No previous destination");
-    return;
-  }
+  if (!tab || tab.historyIndex <= 0) return;
 
   tab.historyIndex--;
   tab.url = tab.history[tab.historyIndex];
+  tab.title = getHost(tab.url);
+
   renderTabs();
-  displayCurrentTab();
-  openOutside(tab.url);
+  showPage(tab.url);
 }
 
 function goForward() {
   const tab = currentTab();
-
-  if (!tab || tab.historyIndex >= tab.history.length - 1) {
-    updateStatus("No next destination");
-    return;
-  }
+  if (!tab || tab.historyIndex >= tab.history.length - 1) return;
 
   tab.historyIndex++;
   tab.url = tab.history[tab.historyIndex];
+  tab.title = getHost(tab.url);
+
   renderTabs();
-  displayCurrentTab();
-  openOutside(tab.url);
+  showPage(tab.url);
 }
 
 function refreshPage() {
   const tab = currentTab();
 
-  if (tab && tab.url) {
-    openOutside(tab.url);
-  } else {
-    window.location.reload();
+  if (!tab || !tab.url) {
+    showHome();
+    return;
   }
+
+  $("webFrame").src = tab.url;
 }
 
-function openCurrentExternally() {
-  const address = $("addressInput").value.trim();
+function openOutside() {
   const tab = currentTab();
+  if (!tab || !tab.url) return;
 
-  const result = resolveAddress(address || (tab && tab.url));
-
-  if (result) {
-    openOutside(result.url);
-  }
+  window.open(tab.url, "_blank", "noopener,noreferrer");
 }
 
-$("addressForm").addEventListener("submit", event => {
+$("addressForm").addEventListener("submit", (event) => {
   event.preventDefault();
   navigate($("addressInput").value);
 });
 
-$("searchForm").addEventListener("submit", event => {
+$("searchForm").addEventListener("submit", (event) => {
   event.preventDefault();
   navigate($("searchInput").value);
 });
 
-document.querySelectorAll(".quick-link").forEach(button => {
-  button.addEventListener("click", () => {
-    navigate(button.dataset.url);
-  });
+$("addressInput").addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    $("addressInput").blur();
+  }
 });
 
 $("backButton").addEventListener("click", goBack);
 $("forwardButton").addEventListener("click", goForward);
 $("refreshButton").addEventListener("click", refreshPage);
 $("homeButton").addEventListener("click", goHome);
-$("newTabButton").addEventListener("click", newTab);
-$("topNewTab").addEventListener("click", newTab);
-$("externalButton").addEventListener("click", openCurrentExternally);
-$("noticeOpenButton").addEventListener("click", openCurrentExternally);
+$("externalButton").addEventListener("click", openOutside);
+$("noticeOpenButton").addEventListener("click", openOutside);
 
-$("brandHome").addEventListener("click", event => {
+$("topNewTab").addEventListener("click", createTab);
+
+$("brandHome").addEventListener("click", (event) => {
   event.preventDefault();
   goHome();
 });
 
-tabs.push(createTab());
-activeTabId = tabs[0].id;
+document.querySelectorAll(".quick-link").forEach((button) => {
+  button.addEventListener("click", () => {
+    navigate(button.dataset.url || "");
+  });
+});
 
-renderTabs();
-displayCurrentTab();
+document.addEventListener("keydown", (event) => {
+  const isMac = navigator.platform.toLowerCase().includes("mac");
+  const modifierPressed = isMac ? event.metaKey : event.ctrlKey;
+
+  if (modifierPressed && event.key.toLowerCase() === "l") {
+    event.preventDefault();
+    $("addressInput").focus();
+    $("addressInput").select();
+  }
+
+  if (modifierPressed && event.key.toLowerCase() === "t") {
+    event.preventDefault();
+    createTab();
+  }
+
+  if (event.altKey && event.key === "ArrowLeft") {
+    event.preventDefault();
+    goBack();
+  }
+
+  if (event.altKey && event.key === "ArrowRight") {
+    event.preventDefault();
+    goForward();
+  }
+});
+
+createTab();
