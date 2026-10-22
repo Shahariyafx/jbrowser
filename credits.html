@@ -5,125 +5,1180 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#050505">
+  <meta name="description" content="J Browser credits, project team and website design agreement.">
   <title>Credits | J Browser</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --black: #050505;
+      --white: #f5f5f5;
+      --muted: #a0a0a0;
+      --border: rgba(255,255,255,.17);
+      --glass: rgba(5,5,5,.79);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--black);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--white);
+      background: var(--black);
+      font-family: "Lexend", "Segoe UI", Arial, sans-serif;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible,
+    a:focus-visible {
+      outline: 2px solid white;
+      outline-offset: 4px;
+    }
+
+    ::selection {
+      background: #fff;
+      color: #000;
+    }
+
+    /* Animated monochrome shader-inspired scene */
+
+    .shader-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+      isolation: isolate;
+      background: #030303;
+    }
+
+    .sky {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 38%, rgba(255,255,255,.16), transparent 31%),
+        radial-gradient(ellipse at 50% 85%, rgba(255,255,255,.07), transparent 45%),
+        linear-gradient(180deg, #030303 0%, #0e0e0e 40%, #191919 73%, #030303 100%);
+      animation: skyPulse 12s ease-in-out infinite alternate;
+    }
+
+    .moon {
+      position: absolute;
+      left: 50%;
+      top: 17%;
+      width: clamp(68px, 9vw, 112px);
+      aspect-ratio: 1;
+      transform: translateX(-50%);
+      background: linear-gradient(145deg, #fff, #a7a7a7);
+      clip-path: polygon(
+        20% 0, 80% 0, 80% 10%, 90% 10%,
+        90% 20%, 100% 20%, 100% 80%,
+        90% 80%, 90% 90%, 80% 90%,
+        80% 100%, 20% 100%, 20% 90%,
+        10% 90%, 10% 80%, 0 80%, 0 20%,
+        10% 20%, 10% 10%, 20% 10%
+      );
+      opacity: .72;
+      filter: drop-shadow(0 0 24px rgba(255,255,255,.17));
+      animation: moonFloat 8s ease-in-out infinite alternate;
+    }
+
+    .stars {
+      position: absolute;
+      inset: -35%;
+      background-repeat: repeat;
+    }
+
+    .stars-one {
+      opacity: .52;
+      background-image:
+        radial-gradient(1px 1px at 25px 40px, #fff 98%, transparent),
+        radial-gradient(2px 2px at 120px 145px, #fff 98%, transparent),
+        radial-gradient(1px 1px at 235px 80px, #fff 98%, transparent),
+        radial-gradient(1px 1px at 320px 225px, #fff 98%, transparent),
+        radial-gradient(2px 2px at 390px 110px, #fff 98%, transparent);
+      background-size: 420px 310px;
+      animation: starsDrift 100s linear infinite;
+    }
+
+    .stars-two {
+      opacity: .24;
+      background-image:
+        radial-gradient(1px 1px at 65px 100px, #fff 98%, transparent),
+        radial-gradient(1px 1px at 205px 45px, #fff 98%, transparent),
+        radial-gradient(2px 2px at 315px 215px, #fff 98%, transparent);
+      background-size: 360px 290px;
+      animation: starsDrift 140s linear infinite reverse;
+    }
+
+    .mountain {
+      position: absolute;
+      left: -8%;
+      width: 116%;
+      image-rendering: pixelated;
+    }
+
+    .mountain-back {
+      bottom: 12%;
+      height: 38%;
+      opacity: .42;
+      background:
+        linear-gradient(135deg, transparent 0 39%, #343434 39% 61%, transparent 61%) 0 100% / 220px 190px repeat-x,
+        linear-gradient(45deg, transparent 0 39%, #242424 39% 61%, transparent 61%) 100px 100% / 220px 190px repeat-x;
+      animation: farTerrain 42s ease-in-out infinite alternate;
+    }
+
+    .mountain-middle {
+      bottom: 4%;
+      height: 31%;
+      opacity: .68;
+      background:
+        linear-gradient(135deg, transparent 0 39%, #1d1d1d 39% 61%, transparent 61%) 0 100% / 175px 145px repeat-x,
+        linear-gradient(45deg, transparent 0 39%, #292929 39% 61%, transparent 61%) 82px 100% / 175px 145px repeat-x;
+      animation: nearTerrain 32s ease-in-out infinite alternate;
+    }
+
+    .mountain-front {
+      bottom: -2%;
+      height: 21%;
+      opacity: .95;
+      background:
+        linear-gradient(135deg, transparent 0 38%, #090909 38% 62%, transparent 62%) 0 100% / 145px 120px repeat-x,
+        linear-gradient(45deg, transparent 0 38%, #181818 38% 62%, transparent 62%) 69px 100% / 145px 120px repeat-x;
+    }
+
+    .ground {
+      position: absolute;
+      left: -20%;
+      bottom: -24%;
+      width: 140%;
+      height: 42%;
+      transform: rotateX(52deg);
+      transform-origin: top center;
+      background:
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(180deg, #171717, #030303);
+      background-size: 42px 42px, 42px 42px, 100% 100%;
+      mask-image: linear-gradient(180deg, transparent, #000 25%);
+      animation: gridTravel 14s linear infinite;
+    }
+
+    .fog {
+      position: absolute;
+      inset: 43% -30% 0;
+      background: linear-gradient(180deg, transparent, rgba(230,230,230,.07), transparent);
+      filter: blur(25px);
+      animation: fogTravel 17s ease-in-out infinite alternate;
+    }
+
+    .particles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      bottom: -10px;
+      width: 2px;
+      height: 2px;
+      background: #fff;
+      box-shadow: 0 0 8px rgba(255,255,255,.8);
+      opacity: 0;
+      animation: particleRise var(--duration, 12s) linear var(--delay, 0s) infinite;
+    }
+
+    /* Main layout */
+
+    .page-shell {
+      position: relative;
+      z-index: 1;
+      width: min(1080px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      display: grid;
+      place-items: center;
+      width: 41px;
+      height: 41px;
+      border: 1px solid rgba(255,255,255,.6);
+      border-radius: 10px;
+      background: linear-gradient(145deg, #2a2a2a, #050505);
+      font-size: 23px;
+      font-weight: 900;
+      box-shadow: 0 0 20px rgba(255,255,255,.07);
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .brand-text strong {
+      font-size: 12px;
+      letter-spacing: 1.5px;
+    }
+
+    .brand-text small {
+      color: #929292;
+      font-size: 8px;
+      letter-spacing: 1px;
+    }
+
+    .plain-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 0 13px;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 7px;
+      background: rgba(0,0,0,.62);
+      color: #f5f5f5;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .5px;
+      transition: background .2s, color .2s, border-color .2s;
+    }
+
+    .plain-button:hover {
+      border-color: #fff;
+      background: #fff;
+      color: #050505;
+    }
+
+    .main {
+      padding: 28px 0 30px;
+    }
+
+    .intro {
+      padding: 7px 0 26px;
+      text-align: center;
+      animation: enterView .65s ease both;
+    }
+
+    .orbit-logo {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 19px;
+    }
+
+    .orbit-ring {
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(255,255,255,.42);
+      border-radius: 50%;
+      animation: orbitSpin 11s linear infinite;
+    }
+
+    .orbit-ring.second {
+      inset: 8px;
+      border-style: dashed;
+      animation-duration: 15s;
+      animation-direction: reverse;
+    }
+
+    .orbit-core {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border: 1px solid #fff;
+      border-radius: 9px;
+      background: #080808;
+      font-size: 23px;
+      font-weight: 900;
+      box-shadow: 0 0 22px rgba(255,255,255,.13);
+    }
+
+    .eyebrow {
+      margin: 0 0 11px;
+      color: #bcbcbc;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 2.5px;
+    }
+
+    .intro h1 {
+      margin: 0;
+      font-size: clamp(35px, 5vw, 51px);
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      line-height: 1.15;
+      text-shadow: 0 0 22px rgba(255,255,255,.1);
+    }
+
+    .intro h1 span {
+      color: #aaa;
+    }
+
+    .intro-description {
+      max-width: 450px;
+      margin: 13px auto 0;
+      color: #9c9c9c;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    /* Founder card */
+
+    .founder-card {
+      display: flex;
+      align-items: center;
+      gap: 17px;
+      padding: 21px;
+      border: 1px solid rgba(255,255,255,.36);
+      border-radius: 11px;
+      background: linear-gradient(110deg, rgba(255,255,255,.1), rgba(0,0,0,.82) 70%);
+      box-shadow: 0 12px 35px rgba(0,0,0,.18);
+      animation: enterView .7s ease both;
+      transition: border-color .25s, transform .25s;
+    }
+
+    .founder-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,.72);
+    }
+
+    .founder-icon {
+      display: grid;
+      place-items: center;
+      width: 61px;
+      height: 61px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 11px;
+      background: linear-gradient(145deg, #282828, #050505);
+      font-size: 32px;
+      font-weight: 900;
+      box-shadow: 0 0 23px rgba(255,255,255,.06);
+    }
+
+    .role {
+      display: block;
+      color: #aaa;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+    }
+
+    .founder-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .founder-info h2 {
+      margin: 7px 0 4px;
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: .5px;
+    }
+
+    .founder-info p {
+      margin: 0;
+      color: #999;
+      font-size: 11px;
+    }
+
+    .founder-index {
+      color: #858585;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    /* Team credit cards */
+
+    .section-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 32px 0 15px;
+      color: #aaa;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+    }
+
+    .section-line {
+      height: 1px;
+      flex: 1;
+      background: linear-gradient(90deg, rgba(255,255,255,.4), transparent);
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .team-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      min-height: 232px;
+      overflow: hidden;
+      padding: 15px 14px 12px;
+      border: 1px solid rgba(255,255,255,.17);
+      border-radius: 10px;
+      background: linear-gradient(145deg, rgba(35,35,35,.88), rgba(0,0,0,.88));
+      animation: cardReveal .7s ease var(--delay, 0ms) both;
+      transition: transform .27s, border-color .27s, box-shadow .27s, background .27s;
+    }
+
+    .team-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -110%;
+      width: 70%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #fff, transparent);
+      transition: left .5s;
+    }
+
+    .team-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255,255,255,.7);
+      background: linear-gradient(145deg, #292929, #050505);
+      box-shadow: 0 12px 30px rgba(0,0,0,.23), 0 0 22px rgba(255,255,255,.045);
+    }
+
+    .team-card:hover::before {
+      left: 135%;
+    }
+
+    .card-top,
+    .card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 7px;
+    }
+
+    .card-top {
+      color: #888;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: .8px;
+    }
+
+    .avatar {
+      display: grid;
+      place-items: center;
+      width: 43px;
+      height: 43px;
+      margin: 19px 0 13px;
+      border: 1px solid rgba(255,255,255,.42);
+      border-radius: 9px;
+      background: linear-gradient(145deg, #292929, #070707);
+      color: #fff;
+      font-size: 23px;
+      font-weight: 900;
+      box-shadow: 0 0 20px rgba(255,255,255,.04);
+    }
+
+    .avatar.code {
+      font-size: 9px;
+      letter-spacing: .5px;
+    }
+
+    .team-card h3 {
+      margin: 8px 0 6px;
+      color: white;
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: .4px;
+      overflow-wrap: anywhere;
+    }
+
+    .team-card p {
+      margin: 0 0 16px;
+      color: #999;
+      font-size: 10px;
+      line-height: 1.6;
+    }
+
+    .card-bottom {
+      margin-top: auto;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,.12);
+      color: #777;
+      font-size: 7px;
+      font-weight: 800;
+      letter-spacing: .5px;
+    }
+
+    /* Website design contract card */
+
+    .contract-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-top: 25px;
+      padding: 22px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 11px;
+      background: linear-gradient(110deg, rgba(255,255,255,.1), rgba(0,0,0,.85) 72%);
+      box-shadow: 0 12px 35px rgba(0,0,0,.2);
+      animation: cardReveal .8s ease both;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+    }
+
+    .contract-card::after {
+      content: "";
+      position: absolute;
+      top: -100%;
+      left: -60%;
+      width: 27%;
+      height: 300%;
+      transform: rotate(24deg);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.085), transparent);
+      animation: contractShine 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .contract-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,255,255,.75);
+      box-shadow: 0 12px 36px rgba(255,255,255,.045);
+    }
+
+    .contract-price {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      width: 75px;
+      height: 75px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255,255,255,.53);
+      border-radius: 12px;
+      background: linear-gradient(145deg, #303030, #050505);
+      color: #fff;
+      font-size: 23px;
+      font-weight: 900;
+      text-shadow: 0 0 15px rgba(255,255,255,.22);
+      box-shadow: 0 0 25px rgba(255,255,255,.055);
+    }
+
+    .contract-content {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .contract-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #aaa;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+    }
+
+    .contract-content h2 {
+      margin: 0 0 9px;
+      color: #fff;
+      font-size: clamp(16px, 2.1vw, 21px);
+      font-weight: 900;
+      line-height: 1.5;
+    }
+
+    .contract-content p {
+      margin: 0;
+      color: #aaa;
+      font-size: 11px;
+      line-height: 1.8;
+    }
+
+    .contract-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 13px;
+      padding: 7px 10px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 6px;
+      color: #ddd;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .contract-status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 9px #fff;
+      animation: statusPulse 2s ease-in-out infinite;
+    }
+
+    .contract-index {
+      position: relative;
+      z-index: 1;
+      align-self: flex-start;
+      flex: 0 0 auto;
+      color: #777;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    /* Hosting credit */
+
+    .hosting-credit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+      padding: 15px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: rgba(0,0,0,.62);
+      animation: cardReveal .9s ease both;
+    }
+
+    .hosting-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 0 10px white;
+      animation: statusPulse 2s ease-in-out infinite;
+    }
+
+    .hosting-label {
+      color: #888;
+      font-size: 9px;
+      letter-spacing: 1px;
+    }
+
+    .hosting-credit strong {
+      color: white;
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+
+    .hosting-divider {
+      width: 1px;
+      height: 17px;
+      background: rgba(255,255,255,.22);
+    }
+
+    .github-label {
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: 6px;
+      font-size: 8px;
+      font-weight: 900;
+    }
+
+    .hosting-platform {
+      color: #aaa;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .signoff {
+      margin: 37px 0 26px;
+      text-align: center;
+    }
+
+    .signoff p {
+      color: #888;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 2.4px;
+    }
+
+    .signoff h2 {
+      margin: 10px 0;
+      font-size: clamp(24px, 3.2vw, 32px);
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .signoff h2 span {
+      color: #aaa;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 16px 0 22px;
+      border-top: 1px solid var(--border);
+      color: #888;
+      font-size: 8px;
+      letter-spacing: .8px;
+    }
+
+    .footer a {
+      color: #ddd;
+      transition: color .2s;
+    }
+
+    .footer a:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    /* Animation */
+
+    @keyframes skyPulse {
+      from { filter: brightness(.76); }
+      to { filter: brightness(1.15); }
+    }
+
+    @keyframes moonFloat {
+      from { margin-top: 0; opacity: .55; }
+      to { margin-top: 9px; opacity: .83; }
+    }
+
+    @keyframes starsDrift {
+      from { transform: translate(0, 0); }
+      to { transform: translate(180px, 140px); }
+    }
+
+    @keyframes farTerrain {
+      from { transform: translateX(-1.5%); }
+      to { transform: translateX(1.5%); }
+    }
+
+    @keyframes nearTerrain {
+      from { transform: translateX(1%); }
+      to { transform: translateX(-1%); }
+    }
+
+    @keyframes gridTravel {
+      from { background-position: 0 0, 0 0, 0 0; }
+      to { background-position: 0 42px, 42px 0, 0 0; }
+    }
+
+    @keyframes fogTravel {
+      from { transform: translateX(-6%); opacity: .4; }
+      to { transform: translateX(7%); opacity: .8; }
+    }
+
+    @keyframes particleRise {
+      0% { transform: translate(0, 0); opacity: 0; }
+      15% { opacity: .4; }
+      85% { opacity: .2; }
+      100% { transform: translate(var(--drift, 20px), -100vh); opacity: 0; }
+    }
+
+    @keyframes orbitSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes enterView {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes cardReveal {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes contractShine {
+      0%, 30% { left: -60%; }
+      70%, 100% { left: 140%; }
+    }
+
+    @keyframes statusPulse {
+      0%, 100% { opacity: .45; }
+      50% { opacity: 1; }
+    }
+
+    /* Responsive layout */
+
+    @media (max-width: 850px) {
+      .team-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .page-shell {
+        padding: 0 18px;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .page-shell {
+        padding: 0 12px;
+      }
+
+      .topbar {
+        padding: 13px 0;
+      }
+
+      .plain-button {
+        padding: 0 9px;
+        font-size: 8px;
+      }
+
+      .main {
+        padding-top: 19px;
+      }
+
+      .intro h1 {
+        font-size: 34px;
+        letter-spacing: -1px;
+      }
+
+      .intro-description {
+        max-width: 310px;
+        font-size: 10px;
+      }
+
+      .founder-card {
+        gap: 10px;
+        padding: 13px;
+      }
+
+      .founder-icon {
+        width: 47px;
+        height: 47px;
+        font-size: 25px;
+      }
+
+      .founder-info h2 {
+        font-size: 20px;
+      }
+
+      .founder-info p {
+        font-size: 9px;
+      }
+
+      .founder-index {
+        max-width: 65px;
+        font-size: 7px;
+        line-height: 1.5;
+        text-align: right;
+        white-space: normal;
+      }
+
+      .team-grid {
+        gap: 8px;
+      }
+
+      .team-card {
+        min-height: 210px;
+        padding: 11px 10px;
+      }
+
+      .team-card h3 {
+        font-size: 13px;
+      }
+
+      .team-card p {
+        font-size: 9px;
+      }
+
+      .card-bottom {
+        font-size: 6px;
+      }
+
+      .contract-card {
+        align-items: flex-start;
+        gap: 11px;
+        padding: 14px;
+      }
+
+      .contract-price {
+        width: 53px;
+        height: 53px;
+        border-radius: 9px;
+        font-size: 18px;
+      }
+
+      .contract-label {
+        font-size: 8px;
+        letter-spacing: .8px;
+      }
+
+      .contract-content h2 {
+        font-size: 14px;
+      }
+
+      .contract-content p {
+        font-size: 10px;
+      }
+
+      .contract-index {
+        display: none;
+      }
+
+      .hosting-credit {
+        gap: 7px;
+        padding: 12px 8px;
+      }
+
+      .hosting-label,
+      .hosting-platform {
+        font-size: 8px;
+      }
+
+      .hosting-credit strong {
+        font-size: 9px;
+      }
+
+      .footer {
+        font-size: 7px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
 </head>
+
 <body>
   <div class="shader-scene" aria-hidden="true">
-    <div class="shader-sky"></div>
-    <div class="shader-stars stars-a"></div>
-    <div class="shader-stars stars-b"></div>
-    <div class="shader-moon"></div>
-    <div class="terrain terrain-back"></div>
-    <div class="terrain terrain-middle"></div>
-    <div class="terrain terrain-front"></div>
-    <div class="shader-fog"></div>
-    <div class="particle-layer" id="particleLayer"></div>
+    <div class="sky"></div>
+    <div class="stars stars-one"></div>
+    <div class="stars stars-two"></div>
+    <div class="moon"></div>
+    <div class="mountain mountain-back"></div>
+    <div class="mountain mountain-middle"></div>
+    <div class="mountain mountain-front"></div>
+    <div class="ground"></div>
+    <div class="fog"></div>
+    <div class="particles" id="particles"></div>
   </div>
 
-  <div class="credits-shell">
-    <header class="credits-topbar">
-      <a class="brand" href="index.html">
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="J Browser home">
         <span class="brand-logo">J</span>
         <span class="brand-text">
           <strong>J BROWSER</strong>
           <small>PROJECT CREDITS</small>
         </span>
       </a>
-      <a class="ui-button" href="index.html">BACK TO HOME</a>
+
+      <a class="plain-button" href="index.html">BACK TO HOME</a>
     </header>
 
-    <main class="credits-main">
-      <section class="credits-intro">
+    <main class="main">
+      <section class="intro">
         <div class="orbit-logo" aria-hidden="true">
           <span class="orbit-ring"></span>
-          <span class="orbit-ring"></span>
+          <span class="orbit-ring second"></span>
           <span class="orbit-core">J</span>
         </div>
 
         <p class="eyebrow">THE PEOPLE BEHIND THE PROJECT</p>
         <h1>MEET THE <span>TEAM.</span></h1>
-        <p>Design. Animation. Development. One shared vision.</p>
+        <p class="intro-description">Design, animation and development come together to create J Browser.</p>
       </section>
 
       <section class="founder-card">
-        <div class="founder-mark">J</div>
-        <div class="founder-details">
-          <span class="role-name">FOUNDER</span>
+        <div class="founder-icon">J</div>
+        <div class="founder-info">
+          <span class="role">FOUNDER</span>
           <h2>JIHAN</h2>
           <p>The vision behind J Browser.</p>
         </div>
-        <span class="founder-code">PROJECT / 00</span>
+        <span class="founder-index">PROJECT / 00</span>
       </section>
 
-      <div class="section-title">
+      <div class="section-heading">
         <span>THE CREATIVE TEAM</span>
         <span class="section-line"></span>
         <span>01 — 04</span>
       </div>
 
-      <section class="credit-grid">
-        <article class="credit-card" style="--delay:0ms">
-          <div class="credit-card-top"><span>01</span><span>EDITING</span></div>
-          <div class="credit-avatar">J</div>
-          <span class="role-name">WEB EDITOR</span>
-          <h3>JIHAN</h3>
+      <section class="team-grid" aria-label="J Browser team credits">
+        <article class="team-card" style="--delay: 0ms">
+          <div class="card-top">
+            <span>01</span>
+            <span>EDITING</span>
+          </div>
+          <div class="avatar">S</div>
+          <span class="role">WEB EDITOR</span>
+          <h3>SHAHARIYA</h3>
           <p>Website editing and presentation.</p>
-          <div class="credit-card-foot"><span>J BROWSER TEAM</span><span>01</span></div>
+          <div class="card-bottom">
+            <span>J BROWSER TEAM</span>
+            <span>01</span>
+          </div>
         </article>
 
-        <article class="credit-card" style="--delay:100ms">
-          <div class="credit-card-top"><span>02</span><span>ANIMATION</span></div>
-          <div class="credit-avatar">S</div>
-          <span class="role-name">WEB ANIMATOR</span>
+        <article class="team-card" style="--delay: 100ms">
+          <div class="card-top">
+            <span>02</span>
+            <span>ANIMATION</span>
+          </div>
+          <div class="avatar">S</div>
+          <span class="role">WEB ANIMATOR</span>
           <h3>SHAHARIYA</h3>
           <p>Website motion and visual effects.</p>
-          <div class="credit-card-foot"><span>J BROWSER TEAM</span><span>02</span></div>
+          <div class="card-bottom">
+            <span>J BROWSER TEAM</span>
+            <span>02</span>
+          </div>
         </article>
 
-        <article class="credit-card" style="--delay:200ms">
-          <div class="credit-card-top"><span>03</span><span>APPLICATION</span></div>
-          <div class="credit-avatar">S</div>
-          <span class="role-name">APP CONVERTOR</span>
+        <article class="team-card" style="--delay: 200ms">
+          <div class="card-top">
+            <span>03</span>
+            <span>APPLICATION</span>
+          </div>
+          <div class="avatar">S</div>
+          <span class="role">APP CONVERTOR</span>
           <h3>SHAHARIYA</h3>
           <p>App conversion and packaging.</p>
-          <div class="credit-card-foot"><span>J BROWSER TEAM</span><span>03</span></div>
+          <div class="card-bottom">
+            <span>J BROWSER TEAM</span>
+            <span>03</span>
+          </div>
         </article>
 
-        <article class="credit-card" style="--delay:300ms">
-          <div class="credit-card-top"><span>04</span><span>DEVELOPMENT</span></div>
-          <div class="credit-avatar">CODE</div>
-          <span class="role-name">CODER / SCRIPTER</span>
+        <article class="team-card" style="--delay: 300ms">
+          <div class="card-top">
+            <span>04</span>
+            <span>DEVELOPMENT</span>
+          </div>
+          <div class="avatar code">CODE</div>
+          <span class="role">CODER / SCRIPTER</span>
           <h3>SHAHARIYA</h3>
           <p>Code, scripts and functionality.</p>
-          <div class="credit-card-foot"><span>J BROWSER TEAM</span><span>04</span></div>
+          <div class="card-bottom">
+            <span>J BROWSER TEAM</span>
+            <span>04</span>
+          </div>
         </article>
       </section>
 
-      <section class="hosted-credit">
-        <span class="hosted-light"></span>
-        <span class="hosted-label">HOSTED BY</span>
-        <strong>SHAHARIYA</strong>
-        <span class="hosted-divider"></span>
-        <span class="hosted-platform">GITHUB PAGES</span>
+      <section class="contract-card" aria-labelledby="contractTitle">
+        <div class="contract-price">$13</div>
+
+        <div class="contract-content">
+          <span class="contract-label">WEBSITE DESIGN AGREEMENT</span>
+          <h2 id="contractTitle">Contracted with Shahariya to Design the Website for $13</h2>
+          <p>Website design services agreed at a contract price of $13.</p>
+          <span class="contract-status">
+            <span class="contract-status-dot"></span>
+            PROJECT CONTRACT
+          </span>
+        </div>
+
+        <span class="contract-index">AGREEMENT / 05</span>
       </section>
 
-      <section class="credits-signoff">
+      <section class="hosting-credit" aria-label="Hosting credit">
+        <span class="hosting-dot"></span>
+        <span class="hosting-label">HOSTED BY</span>
+        <strong>SHAHARIYA</strong>
+        <span class="hosting-divider"></span>
+        <span class="github-label">GH</span>
+        <span class="hosting-platform">GITHUB PAGES</span>
+      </section>
+
+      <section class="signoff">
         <p>MADE WITH PURPOSE</p>
         <h2>THIS IS <span>J BROWSER.</span></h2>
       </section>
     </main>
 
-    <footer class="credits-footer">
+    <footer class="footer">
       <span>J BROWSER</span>
       <span>FOUNDER: JIHAN</span>
       <a href="index.html">RETURN HOME</a>
     </footer>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    "use strict";
+
+    (function createParticles() {
+      const layer = document.getElementById("particles");
+
+      if (!layer || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        return;
+      }
+
+      const count = window.innerWidth < 540 ? 13 : 25;
+
+      for (let i = 0; i < count; i++) {
+        const particle = document.createElement("span");
+        particle.className = "particle";
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.setProperty("--duration", `${9 + Math.random() * 13}s`);
+        particle.style.setProperty("--delay", `${-Math.random() * 20}s`);
+        particle.style.setProperty("--drift", `${(Math.random() - 0.5) * 110}px`);
+        layer.appendChild(particle);
+      }
+    })();
+  </script>
 </body>
 </html>
