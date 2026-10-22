@@ -1,10 +1,7 @@
-
 "use strict";
 
 const $ = (id) => document.getElementById(id);
-
 const BUILD_WEBSITE_URL = "https://sites.google.com/view/buildwebsitesbd-jihanstudiobd/home";
-const HOME_URL = "about:blank";
 
 let tabs = [];
 let activeTabId = null;
@@ -22,7 +19,6 @@ function createTab() {
     history: [],
     historyIndex: -1
   };
-
   tabs.push(tab);
   activeTabId = tab.id;
   renderTabs();
@@ -31,53 +27,68 @@ function createTab() {
 }
 
 function renderTabs() {
-  const tabList = $("tabList");
-  tabList.replaceChildren();
+  const list = $("tabList");
+  list.replaceChildren();
 
   tabs.forEach((tab) => {
-    const tabButton = document.createElement("button");
-    tabButton.type = "button";
-    tabButton.className = "tab" + (tab.id === activeTabId ? " active" : "");
-    tabButton.title = tab.title;
-    tabButton.setAttribute("aria-label", "Switch to " + tab.title);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "tab" + (tab.id === activeTabId ? " active" : "");
+    button.title = tab.title;
 
-    const tabTitle = document.createElement("span");
-    tabTitle.className = "tab-title";
-    tabTitle.textContent = tab.title;
+    const title = document.createElement("span");
+    title.className = "tab-title";
+    title.textContent = tab.title;
 
-    const closeButton = document.createElement("span");
-    closeButton.className = "tab-close";
-    closeButton.textContent = "×";
-    closeButton.title = "Close tab";
-    closeButton.setAttribute("role", "button");
-    closeButton.setAttribute("aria-label", "Close " + tab.title);
-    closeButton.tabIndex = 0;
+    const close = document.createElement("span");
+    close.className = "tab-close";
+    close.textContent = "×";
+    close.title = "Close tab";
+    close.setAttribute("role", "button");
+    close.setAttribute("tabindex", "0");
+    close.setAttribute("aria-label", "Close " + tab.title);
 
-    const closeTab = (event) => {
+    const closeThisTab = (event) => {
       event.stopPropagation();
       removeTab(tab.id);
     };
 
-    closeButton.addEventListener("click", closeTab);
-    closeButton.addEventListener("keydown", (event) => {
+    close.addEventListener("click", closeThisTab);
+    close.addEventListener("keydown", (event) => {
       if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
-        closeTab(event);
+        closeThisTab(event);
       }
     });
 
-    tabButton.addEventListener("click", () => {
-      switchTab(tab.id);
-    });
-
-    tabButton.append(tabTitle, closeButton);
-    tabList.appendChild(tabButton);
+    button.addEventListener("click", () => switchTab(tab.id));
+    button.append(title, close);
+    list.appendChild(button);
   });
 
-  $("backButton").disabled = !currentTab() || currentTab().historyIndex <= 0;
-  $("forwardButton").disabled =
-    !currentTab() ||
-    currentTab().historyIndex >= currentTab().history.length - 1;
+  const tab = currentTab();
+  $("backButton").disabled = !tab || tab.historyIndex <= 0;
+  $("forwardButton").disabled = !tab || tab.historyIndex >= tab.history.length - 1;
+}
+
+function removeTab(id) {
+  const index = tabs.findIndex((tab) => tab.id === id);
+  if (index < 0) return;
+
+  const wasActive = tabs[index].id === activeTabId;
+  tabs.splice(index, 1);
+
+  if (!tabs.length) {
+    createTab();
+    return;
+  }
+
+  if (wasActive) {
+    activeTabId = tabs[Math.max(0, index - 1)].id;
+  }
+
+  renderTabs();
+  switchTab(activeTabId);
 }
 
 function switchTab(id) {
@@ -87,57 +98,38 @@ function switchTab(id) {
   activeTabId = id;
   renderTabs();
 
-  if (tab.url) {
-    showPage(tab.url, false);
-  } else {
-    showHome();
-  }
+  if (tab.url) showPage(tab.url);
+  else showHome();
 }
 
-function removeTab(id) {
-  const index = tabs.findIndex((tab) => tab.id === id);
-  if (index === -1) return;
-
-  const wasActive = tabs[index].id === activeTabId;
-  tabs.splice(index, 1);
-
-  if (tabs.length === 0) {
-    createTab();
-    return;
-  }
-
-  if (wasActive) {
-    const nextTab = tabs[Math.max(0, index - 1)];
-    activeTabId = nextTab.id;
-  }
-
-  renderTabs();
-  switchTab(activeTabId);
+function hideAllPages() {
+  $("homeScreen").hidden = true;
+  $("creditsPage").hidden = true;
+  $("pageScreen").hidden = true;
 }
 
 function showHome() {
+  hideAllPages();
   $("homeScreen").hidden = false;
-  $("pageScreen").hidden = true;
   $("addressInput").value = "";
   $("searchInput").value = "";
   renderTabs();
 }
 
-function showPage(url, updateAddress = true) {
-  $("homeScreen").hidden = true;
+function showCredits() {
+  hideAllPages();
+  $("creditsPage").hidden = false;
+  renderTabs();
+}
+
+function showPage(url) {
+  hideAllPages();
   $("pageScreen").hidden = false;
   $("webFrame").src = url;
+  $("addressInput").value = url;
 
-  if (updateAddress) {
-    $("addressInput").value = url;
-  }
-
-  const tab = currentTab();
-  if (tab) {
-    $("statusText");
-    const status = document.querySelector(".status-text");
-    if (status) status.textContent = "Viewing " + getHost(url);
-  }
+  const status = document.querySelector(".status-text");
+  if (status) status.textContent = "Viewing " + getHost(url);
 }
 
 function getHost(url) {
@@ -148,20 +140,24 @@ function getHost(url) {
   }
 }
 
-function resolveAddress(value) {
-  const text = value.trim();
-  if (!text) return null;
+function searchResult(query) {
+  return {
+    url: "https://www.google.com/search?q=" + encodeURIComponent(query),
+    title: "Google Search"
+  };
+}
 
-  if (/^build\s+website\s+bd$/i.test(text)) {
-    return {
-      url: BUILD_WEBSITE_URL,
-      title: "Build Website BD"
-    };
+function resolveAddress(value) {
+  const input = value.trim();
+  if (!input) return null;
+
+  if (/^build\s+website\s+bd$/i.test(input)) {
+    return { url: BUILD_WEBSITE_URL, title: "Build Website BD" };
   }
 
-  if (/^https?:\/\//i.test(text)) {
+  if (/^https?:\/\//i.test(input)) {
     try {
-      const parsed = new URL(text);
+      const parsed = new URL(input);
       if (parsed.protocol === "http:" || parsed.protocol === "https:") {
         return {
           url: parsed.href,
@@ -169,31 +165,23 @@ function resolveAddress(value) {
         };
       }
     } catch {
-      return searchUrl(text);
+      return searchResult(input);
     }
   }
 
-  if (/^(localhost|[\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/i.test(text) &&
-      !/\s/.test(text)) {
+  if (!/\s/.test(input) && /^(localhost|[\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/i.test(input)) {
     try {
-      const parsed = new URL("https://" + text);
+      const parsed = new URL("https://" + input);
       return {
         url: parsed.href,
         title: parsed.hostname.replace(/^www\./i, "")
       };
     } catch {
-      return searchUrl(text);
+      return searchResult(input);
     }
   }
 
-  return searchUrl(text);
-}
-
-function searchUrl(text) {
-  return {
-    url: "https://www.google.com/search?q=" + encodeURIComponent(text),
-    title: "Google Search"
-  };
+  return searchResult(input);
 }
 
 function navigate(value) {
@@ -214,15 +202,6 @@ function navigate(value) {
 
   renderTabs();
   showPage(result.url);
-}
-
-function goHome() {
-  const tab = currentTab();
-  if (tab) {
-    tab.url = "";
-    tab.title = "New Tab";
-  }
-  showHome();
 }
 
 function goBack() {
@@ -249,21 +228,27 @@ function goForward() {
   showPage(tab.url);
 }
 
+function goHome() {
+  const tab = currentTab();
+  if (tab) {
+    tab.url = "";
+    tab.title = "New Tab";
+  }
+  showHome();
+}
+
 function refreshPage() {
   const tab = currentTab();
-
   if (!tab || !tab.url) {
     showHome();
     return;
   }
-
   $("webFrame").src = tab.url;
 }
 
 function openOutside() {
   const tab = currentTab();
   if (!tab || !tab.url) return;
-
   window.open(tab.url, "_blank", "noopener,noreferrer");
 }
 
@@ -277,19 +262,12 @@ $("searchForm").addEventListener("submit", (event) => {
   navigate($("searchInput").value);
 });
 
-$("addressInput").addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    $("addressInput").blur();
-  }
-});
-
 $("backButton").addEventListener("click", goBack);
 $("forwardButton").addEventListener("click", goForward);
 $("refreshButton").addEventListener("click", refreshPage);
 $("homeButton").addEventListener("click", goHome);
 $("externalButton").addEventListener("click", openOutside);
 $("noticeOpenButton").addEventListener("click", openOutside);
-
 $("topNewTab").addEventListener("click", createTab);
 
 $("brandHome").addEventListener("click", (event) => {
@@ -297,23 +275,25 @@ $("brandHome").addEventListener("click", (event) => {
   goHome();
 });
 
+$("openCreditsButton").addEventListener("click", showCredits);
+$("backToHomeButton").addEventListener("click", goHome);
+$("creditsHomeButton").addEventListener("click", goHome);
+
 document.querySelectorAll(".quick-link").forEach((button) => {
-  button.addEventListener("click", () => {
-    navigate(button.dataset.url || "");
-  });
+  button.addEventListener("click", () => navigate(button.dataset.url || ""));
 });
 
 document.addEventListener("keydown", (event) => {
-  const isMac = navigator.platform.toLowerCase().includes("mac");
-  const modifierPressed = isMac ? event.metaKey : event.ctrlKey;
+  const mac = navigator.platform.toLowerCase().includes("mac");
+  const modifier = mac ? event.metaKey : event.ctrlKey;
 
-  if (modifierPressed && event.key.toLowerCase() === "l") {
+  if (modifier && event.key.toLowerCase() === "l") {
     event.preventDefault();
     $("addressInput").focus();
     $("addressInput").select();
   }
 
-  if (modifierPressed && event.key.toLowerCase() === "t") {
+  if (modifier && event.key.toLowerCase() === "t") {
     event.preventDefault();
     createTab();
   }
@@ -327,6 +307,29 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     goForward();
   }
+
+  if (event.key === "Escape" && !$("creditsPage").hidden) {
+    goHome();
+  }
 });
 
+function createParticles() {
+  const container = $("shaderParticles");
+  if (!container || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const count = window.innerWidth < 600 ? 18 : 32;
+
+  for (let i = 0; i < count; i++) {
+    const particle = document.createElement("span");
+    particle.className = "particle";
+    particle.style.left = (Math.random() * 100) + "%";
+    particle.style.setProperty("--duration", (9 + Math.random() * 12) + "s");
+    particle.style.setProperty("--delay", (-Math.random() * 18) + "s");
+    particle.style.setProperty("--drift", ((Math.random() - 0.5) * 130) + "px");
+    particle.style.opacity = (0.15 + Math.random() * 0.35).toFixed(2);
+    container.appendChild(particle);
+  }
+}
+
+createParticles();
 createTab();
