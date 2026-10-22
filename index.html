@@ -27,7 +27,7 @@
 
   <div class="app-shell">
     <header class="topbar">
-      <a class="brand" href="index.html" id="brandHome" aria-label="J Browser home">
+      <a class="brand" href="index.html" id="brandHome">
         <span class="brand-logo">J</span>
         <span class="brand-text">
           <strong>J BROWSER</strong>
@@ -45,15 +45,15 @@
 
     <nav class="browser-toolbar" aria-label="Browser controls">
       <div class="nav-buttons">
-        <button class="ui-button control-button" id="backButton" type="button" disabled>BACK</button>
-        <button class="ui-button control-button" id="forwardButton" type="button" disabled>NEXT</button>
-        <button class="ui-button control-button" id="refreshButton" type="button">RELOAD</button>
-        <button class="ui-button control-button" id="homeButton" type="button">HOME</button>
+        <button class="ui-button" id="backButton" type="button" disabled>BACK</button>
+        <button class="ui-button" id="forwardButton" type="button" disabled>NEXT</button>
+        <button class="ui-button" id="refreshButton" type="button">RELOAD</button>
+        <button class="ui-button" id="homeButton" type="button">HOME</button>
       </div>
 
       <form class="address-form" id="addressForm">
         <span class="address-label">WEB</span>
-        <input id="addressInput" type="text" autocomplete="off" spellcheck="false" placeholder="Search or enter a website address" aria-label="Website address">
+        <input id="addressInput" type="text" autocomplete="off" spellcheck="false" placeholder="Enter a website or search Google" aria-label="Website address">
         <button class="solid-button" type="submit">GO</button>
       </form>
 
@@ -65,44 +65,34 @@
         <div class="home-content">
           <div class="hero-logo" aria-hidden="true">J</div>
           <p class="eyebrow">A MONOCHROME WEB EXPERIENCE</p>
-          <h1 class="launcher-title">J <span>LAUNCHER</span></h1>
+          <h1 class="browser-title">J <span>BROWSER</span></h1>
           <p class="hero-description">YOUR WORLD. YOUR EXPERIENCE.</p>
 
           <form class="search-panel" id="searchForm">
-            <label class="engine-control">
+            <div class="google-engine">
               <span class="engine-label">SEARCH WITH</span>
-              <select id="searchEngine" aria-label="Choose search engine">
-                <option value="google">Google</option>
-                <option value="bing">Bing</option>
-              </select>
-            </label>
-
-            <input id="searchInput" type="text" autocomplete="off" placeholder="Search the web..." aria-label="Search the web">
+              <strong>GOOGLE</strong>
+            </div>
+            <input id="searchInput" type="text" autocomplete="off" placeholder="Search the web with Google..." aria-label="Search Google">
             <button class="solid-button search-button" type="submit">SEARCH</button>
           </form>
 
           <p class="quick-heading">QUICK ACCESS</p>
-
-          <div class="quick-links" aria-label="Quick access websites">
+          <div class="quick-links">
             <button class="quick-link" type="button" data-url="https://www.google.com">
-              <span class="quick-icon">G</span>
-              <span>Google</span>
+              <span class="quick-icon">G</span><span>Google</span>
             </button>
             <button class="quick-link" type="button" data-url="https://www.bing.com">
-              <span class="quick-icon">B</span>
-              <span>Bing</span>
+              <span class="quick-icon">B</span><span>Bing</span>
             </button>
             <button class="quick-link" type="button" data-url="https://www.youtube.com">
-              <span class="quick-icon">YT</span>
-              <span>YouTube</span>
+              <span class="quick-icon">YT</span><span>YouTube</span>
             </button>
             <button class="quick-link" type="button" data-url="https://www.wikipedia.org">
-              <span class="quick-icon">W</span>
-              <span>Wikipedia</span>
+              <span class="quick-icon">W</span><span>Wikipedia</span>
             </button>
             <button class="quick-link" type="button" data-url="https://github.com">
-              <span class="quick-icon">GH</span>
-              <span>GitHub</span>
+              <span class="quick-icon">GH</span><span>GitHub</span>
             </button>
           </div>
 
@@ -135,7 +125,7 @@
         </div>
 
         <div class="embed-message">
-          <span>This website may not allow embedded viewing.</span>
+          <span>If the website does not load, it may block embedding.</span>
           <button class="ui-button" id="noticeOpenButton" type="button">OPEN WEBSITE OUTSIDE</button>
         </div>
       </section>
