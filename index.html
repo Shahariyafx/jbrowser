@@ -1,134 +1,208 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#101010">
-  <meta name="description" content="J Browser — a simple, clean way to browse the web.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#050505">
+  <meta name="description" content="J Browser — a clean, animated browser-style web experience.">
   <title>J Browser</title>
-  <link rel="icon" type="image/png" href="logo.png">
   <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
 </head>
 <body>
-  <div class="browser">
+  <div class="shader-scene" aria-hidden="true">
+    <div class="shader-sky"></div>
+    <div class="shader-stars stars-one"></div>
+    <div class="shader-stars stars-two"></div>
+    <div class="shader-sun"></div>
+    <div class="shader-mountains mountains-back"></div>
+    <div class="shader-mountains mountains-front"></div>
+    <div class="shader-ground"></div>
+    <div class="shader-fog"></div>
+    <div class="shader-particles" id="shaderParticles"></div>
+  </div>
 
+  <div class="app-shell">
     <header class="topbar">
-      <a class="brand" href="#" id="brandHome" aria-label="J Browser Home">
-        <span class="brand-j">J</span>
-        <span>Browser</span>
+      <a class="brand" href="#" id="brandHome" aria-label="J Browser home">
+        <span class="brand-mark">J</span>
+        <span class="brand-copy">
+          <strong>J BROWSER</strong>
+          <small>EXPLORE WITHOUT LIMITS</small>
+        </span>
       </a>
-
-      <div class="top-right">
-        <span class="status-dot"></span>
-        <span class="status-text">Ready to browse</span>
-        <button class="small-button" id="topNewTab" aria-label="New tab" title="New tab">+</button>
+      <div class="tab-area">
+        <div class="tabs" id="tabList" aria-label="Open tabs"></div>
+        <button class="text-button new-tab" id="topNewTab" type="button">New Tab</button>
       </div>
     </header>
 
-    <div class="tabs" id="tabList" aria-label="Browser tabs"></div>
-
-    <nav class="toolbar" aria-label="Browser navigation">
-      <button class="nav-button" id="backButton" title="Back" aria-label="Back">←</button>
-      <button class="nav-button" id="forwardButton" title="Forward" aria-label="Forward">→</button>
-      <button class="nav-button" id="refreshButton" title="Refresh" aria-label="Refresh">⟳</button>
-      <button class="nav-button home-button" id="homeButton" title="Home" aria-label="Home">⌂</button>
-
-      <form class="address-bar" id="addressForm">
-        <svg class="address-icon" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="10.8" cy="10.8" r="6.8"></circle>
-          <path d="m16 16 4.3 4.3"></path>
-        </svg>
-        <input
-          id="addressInput"
-          type="text"
-          placeholder="Search Google or enter a website"
-          autocomplete="off"
-          spellcheck="false"
-          aria-label="Search or website address"
-        >
-        <button class="go-button" type="submit">Go</button>
+    <nav class="toolbar" aria-label="Browser controls">
+      <div class="nav-buttons">
+        <button class="tool-button" id="backButton" type="button" title="Back">Back</button>
+        <button class="tool-button" id="forwardButton" type="button" title="Forward">Next</button>
+        <button class="tool-button" id="refreshButton" type="button" title="Reload">Reload</button>
+        <button class="tool-button" id="homeButton" type="button" title="Home">Home</button>
+      </div>
+      <form class="address-form" id="addressForm">
+        <span class="address-lock" aria-hidden="true">SEARCH</span>
+        <input id="addressInput" type="text" autocomplete="off" spellcheck="false" placeholder="Search Google or enter a website" aria-label="Search or website address">
+        <button type="submit">GO</button>
       </form>
-
-      <button class="nav-button external-button" id="externalButton" title="Open website in a new tab" aria-label="Open externally">↗</button>
-      <button class="nav-button add-button" id="newTabButton" title="New tab" aria-label="New tab">+</button>
+      <button class="tool-button external-tool" id="externalButton" type="button" title="Open website in a new tab">OPEN</button>
     </nav>
 
     <main class="viewport">
-      <section class="home-screen" id="homeScreen">
-        <div class="hero">
-          <div class="hero-logo-frame">
-            <img class="hero-logo" src="logo.png" alt="J Browser logo">
+      <section class="home-screen page-enter" id="homeScreen">
+        <div class="home-content">
+          <div class="hero-emblem" aria-hidden="true">
+            <div class="hero-emblem-inner">J</div>
           </div>
-          <h1>J <span>Browser</span></h1>
-          <p class="tagline">A simpler way to explore the web.</p>
-        </div>
+          <p class="eyebrow">A NEW WAY TO EXPLORE</p>
+          <h1>Enter Your <span>World.</span></h1>
+          <p class="hero-description">One clean space. Endless possibilities.</p>
 
-        <form class="search-box" id="searchForm">
-          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="10.8" cy="10.8" r="6.8"></circle>
-            <path d="m16 16 4.3 4.3"></path>
-          </svg>
-          <input
-            id="searchInput"
-            type="text"
-            placeholder="Search Google or enter a website..."
-            autocomplete="off"
-            spellcheck="false"
-            aria-label="Search Google or enter a website"
-          >
-          <button type="submit" class="search-submit" aria-label="Search">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M5 12h13M12 6l6 6-6 6"></path>
-            </svg>
-          </button>
-        </form>
+          <form class="search-box" id="searchForm">
+            <span class="search-symbol" aria-hidden="true">⌕</span>
+            <input id="searchInput" type="text" autocomplete="off" placeholder="Search the web with Google" aria-label="Search the web">
+            <button type="submit">SEARCH</button>
+          </form>
 
-        <div class="quick-links">
-          <button class="quick-link" data-url="https://www.google.com" type="button">
-            <span class="quick-icon google-icon">G</span>
-            <span>Google</span>
-          </button>
+          <div class="quick-links" aria-label="Quick links">
+            <button class="quick-link" type="button" data-url="https://www.google.com"><span class="quick-icon">G</span><span>Google</span></button>
+            <button class="quick-link" type="button" data-url="https://www.youtube.com"><span class="quick-icon">YT</span><span>YouTube</span></button>
+            <button class="quick-link" type="button" data-url="https://www.wikipedia.org"><span class="quick-icon">W</span><span>Wikipedia</span></button>
+            <button class="quick-link" type="button" data-url="https://github.com"><span class="quick-icon">GH</span><span>GitHub</span></button>
+          </div>
 
-          <button class="quick-link" data-url="https://www.youtube.com" type="button">
-            <span class="quick-icon youtube-icon">▶</span>
-            <span>YouTube</span>
-          </button>
-
-          <button class="quick-link" data-url="https://www.wikipedia.org" type="button">
-            <span class="quick-icon wiki-icon">W</span>
-            <span>Wikipedia</span>
-          </button>
-
-          <button class="quick-link" data-url="https://github.com" type="button">
-            <span class="quick-icon github-icon">GH</span>
-            <span>GitHub</span>
+          <button class="credits-entry" id="openCreditsButton" type="button">
+            <span class="credits-entry-icon" aria-hidden="true">✦</span>
+            <span class="credits-entry-copy">
+              <strong>MEET THE TEAM</strong>
+              <small>Discover the people behind J Browser</small>
+            </span>
+            <span class="credits-entry-label">CREDITS</span>
           </button>
         </div>
 
-        <p class="home-note">
-          Simple design. Your next destination starts here.
-        </p>
+        <footer class="home-footer">
+          <span>J BROWSER</span>
+          <span>DESIGNED FOR EXPLORATION</span>
+        </footer>
       </section>
 
-      <section class="page-screen" id="pageScreen" hidden>
-        <iframe
-          id="webFrame"
-          title="Website content"
-          referrerpolicy="strict-origin-when-cross-origin"
-        ></iframe>
-        <div class="frame-notice">
-          Some websites do not allow embedded viewing.
-          <button type="button" id="noticeOpenButton">Open this website externally</button>
+      <section class="credits-page page-enter" id="creditsPage" hidden>
+        <div class="credits-page-inner">
+          <div class="credits-topline">
+            <button class="back-home-link" id="backToHomeButton" type="button">HOME</button>
+            <span class="credits-topline-label">J BROWSER / CREDITS</span>
+          </div>
+
+          <div class="credits-heading">
+            <div class="credits-orbit" aria-hidden="true">
+              <span class="orbit-ring ring-one"></span>
+              <span class="orbit-ring ring-two"></span>
+              <span class="orbit-core">J</span>
+            </div>
+            <p class="eyebrow">THE PEOPLE BEHIND THE PROJECT</p>
+            <h1>Made by <span>the team.</span></h1>
+            <p>Creative ideas, thoughtful design and code come together here.</p>
+          </div>
+
+          <article class="founder-card">
+            <div class="founder-symbol">J</div>
+            <div class="founder-info">
+              <span class="role-label">PROJECT FOUNDER</span>
+              <h2>JIHAN</h2>
+              <p>The vision behind J Browser.</p>
+            </div>
+            <span class="founder-index">FOUNDER / 00</span>
+          </article>
+
+          <div class="team-heading">
+            <span>THE CREATIVE TEAM</span>
+            <span class="team-line"></span>
+            <span>01 TO 04</span>
+          </div>
+
+          <div class="credits-grid">
+            <article class="credit-card">
+              <div class="credit-topline"><span>01</span><span class="credit-symbol">EDIT</span></div>
+              <div class="credit-avatar">J</div>
+              <span class="role-label">WEB EDITOR</span>
+              <h3>JIHAN</h3>
+              <p>Website editing and presentation.</p>
+              <div class="card-bottom"><span>J BROWSER TEAM</span><span>01</span></div>
+            </article>
+
+            <article class="credit-card">
+              <div class="credit-topline"><span>02</span><span class="credit-symbol">MOTION</span></div>
+              <div class="credit-avatar">S</div>
+              <span class="role-label">WEB ANIMATOR</span>
+              <h3>SHAHARIYA</h3>
+              <p>Motion, animation and visual effects.</p>
+              <div class="card-bottom"><span>J BROWSER TEAM</span><span>02</span></div>
+            </article>
+
+            <article class="credit-card">
+              <div class="credit-topline"><span>03</span><span class="credit-symbol">APP</span></div>
+              <div class="credit-avatar">S</div>
+              <span class="role-label">APP CONVERTOR</span>
+              <h3>SHAHARIYA</h3>
+              <p>App conversion and packaging.</p>
+              <div class="card-bottom"><span>J BROWSER TEAM</span><span>03</span></div>
+            </article>
+
+            <article class="credit-card">
+              <div class="credit-topline"><span>04</span><span class="credit-symbol">CODE</span></div>
+              <div class="credit-avatar">S</div>
+              <span class="role-label">CODER / SCRIPTER</span>
+              <h3>SHAHARIYA</h3>
+              <p>Code, scripts and functionality.</p>
+              <div class="card-bottom"><span>J BROWSER TEAM</span><span>04</span></div>
+            </article>
+          </div>
+
+          <div class="hosting-credit">
+            <span class="hosting-dot"></span>
+            <span class="hosting-label">HOSTED BY</span>
+            <strong>SHAHARIYA</strong>
+            <span class="hosting-separator"></span>
+            <span class="github-mark">GH</span>
+            <span class="hosting-provider">GITHUB PAGES</span>
+          </div>
+
+          <div class="credits-signoff">
+            <span class="signoff-line"></span>
+            <p>MADE WITH PURPOSE</p>
+            <h2>THIS IS <span>J BROWSER.</span></h2>
+            <span class="signoff-line"></span>
+          </div>
+
+          <footer class="credits-footer">
+            <span>© J BROWSER</span>
+            <button id="creditsHomeButton" type="button">RETURN HOME</button>
+          </footer>
+        </div>
+      </section>
+
+      <section class="page-screen page-enter" id="pageScreen" hidden>
+        <div class="page-status">
+          <span class="status-dot"></span>
+          <span class="status-text">Website view</span>
+          <span class="page-hint">Some websites block embedded viewing.</span>
+        </div>
+        <div class="frame-wrap">
+          <iframe id="webFrame" title="Website viewer" src="about:blank" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen"></iframe>
+        </div>
+        <div class="frame-fallback">
+          <span>Website not loading?</span>
+          <span>It may block embedded viewing.</span>
+          <button id="noticeOpenButton" type="button">OPEN OUTSIDE</button>
         </div>
       </section>
     </main>
-
-    <footer class="footer">
-      <span>J Browser</span>
-      <span>Simple by design</span>
-    </footer>
-
   </div>
+  <script src="script.js"></script>
 </body>
 </html>
