@@ -2,26 +2,82 @@
 "use strict";
 
 const $ = (id) => document.getElementById(id);
-const BUILD_WEBSITE_URL = "https://sites.google.com/view/buildwebsitesbd-jihanstudiobd/home";
 
-function bind(id, event, callback) {
+const BUILD_WEBSITE_URL =
+  "https://sites.google.com/view/buildwebsitesbd-jihanstudiobd/home";
+
+function bind(id, eventName, callback) {
   const element = $(id);
-  if (element) element.addEventListener(event, callback);
+  if (element) {
+    element.addEventListener(eventName, callback);
+  }
+}
+
+function isBuildWebsiteBD(value) {
+  return /^build\s+website\s+bd$/i.test(value.trim());
+}
+
+function isWebsiteAddress(value) {
+  const text = value.trim();
+
+  if (/^https?:\/\//i.test(text)) {
+    try {
+      const url = new URL(text);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }
+
+  return !/\s/.test(text) &&
+    /^(localhost|[\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/i.test(text);
+}
+
+function getSearchURL(query) {
+  const engine = $("searchEngine")?.value || "google";
+  const baseURL = engine === "bing"
+    ? "https://www.bing.com/search?q="
+    : "https://www.google.com/search?q=";
+
+  return baseURL + encodeURIComponent(query.trim());
+}
+
+function openExternalURL(url) {
+  window.open(url, "_blank", "noopener,noreferrer");
 }
 
 function makeParticles() {
   const layer = $("particleLayer");
-  if (!layer || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const amount = window.innerWidth < 650 ? 12 : 24;
+  if (
+    !layer ||
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    return;
+  }
 
-  for (let i = 0; i < amount; i++) {
+  layer.replaceChildren();
+
+  const count = window.innerWidth < 650 ? 12 : 24;
+
+  for (let i = 0; i < count; i++) {
     const pixel = document.createElement("span");
     pixel.className = "pixel";
+
     pixel.style.left = `${Math.random() * 100}%`;
-    pixel.style.setProperty("--duration", `${9 + Math.random() * 12}s`);
-    pixel.style.setProperty("--delay", `${-Math.random() * 18}s`);
-    pixel.style.setProperty("--drift", `${(Math.random() - 0.5) * 100}px`);
+    pixel.style.setProperty(
+      "--duration",
+      `${9 + Math.random() * 12}s`
+    );
+    pixel.style.setProperty(
+      "--delay",
+      `${-Math.random() * 18}s`
+    );
+    pixel.style.setProperty(
+      "--drift",
+      `${(Math.random() - 0.5) * 100}px`
+    );
+
     layer.appendChild(pixel);
   }
 }
@@ -32,7 +88,9 @@ const browser = {
   nextId: 1,
 
   current() {
-    return this.tabs.find((tab) => tab.id === this.activeId) || null;
+    return this.tabs.find(
+      (tab) => tab.id === this.activeId
+    ) || null;
   },
 
   createTab() {
@@ -46,20 +104,22 @@ const browser = {
 
     this.tabs.push(tab);
     this.activeId = tab.id;
+
     this.renderTabs();
     this.showHome();
   },
 
   renderTabs() {
-    const list = $("tabList");
-    if (!list) return;
+    const tabList = $("tabList");
+    if (!tabList) return;
 
-    list.replaceChildren();
+    tabList.replaceChildren();
 
     this.tabs.forEach((tab) => {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "tab" + (tab.id === this.activeId ? " active" : "");
+      button.className =
+        "tab" + (tab.id === this.activeId ? " active" : "");
       button.title = tab.title;
 
       const title = document.createElement("span");
@@ -88,24 +148,33 @@ const browser = {
         }
       });
 
-      button.addEventListener("click", () => this.switchTab(tab.id));
+      button.addEventListener("click", () => {
+        this.switchTab(tab.id);
+      });
+
       button.append(title, close);
-      list.appendChild(button);
+      tabList.appendChild(button);
     });
 
     const tab = this.current();
 
     if ($("backButton")) {
-      $("backButton").disabled = !tab || tab.historyIndex <= 0;
+      $("backButton").disabled =
+        !tab || tab.historyIndex <= 0;
     }
 
     if ($("forwardButton")) {
-      $("forwardButton").disabled = !tab || tab.historyIndex >= tab.history.length - 1;
+      $("forwardButton").disabled =
+        !tab ||
+        tab.historyIndex >= tab.history.length - 1;
     }
   },
 
   removeTab(id) {
-    const index = this.tabs.findIndex((tab) => tab.id === id);
+    const index = this.tabs.findIndex(
+      (tab) => tab.id === id
+    );
+
     if (index < 0) return;
 
     const wasActive = this.activeId === id;
@@ -117,7 +186,8 @@ const browser = {
     }
 
     if (wasActive) {
-      this.activeId = this.tabs[Math.max(0, index - 1)].id;
+      this.activeId =
+        this.tabs[Math.max(0, index - 1)].id;
     }
 
     this.renderTabs();
@@ -125,7 +195,10 @@ const browser = {
   },
 
   switchTab(id) {
-    const tab = this.tabs.find((item) => item.id === id);
+    const tab = this.tabs.find(
+      (item) => item.id === id
+    );
+
     if (!tab) return;
 
     this.activeId = id;
@@ -139,16 +212,29 @@ const browser = {
   },
 
   hideViews() {
-    if ($("homeScreen")) $("homeScreen").hidden = true;
-    if ($("pageScreen")) $("pageScreen").hidden = true;
+    if ($("homeScreen")) {
+      $("homeScreen").hidden = true;
+    }
+
+    if ($("pageScreen")) {
+      $("pageScreen").hidden = true;
+    }
   },
 
   showHome() {
     this.hideViews();
 
-    if ($("homeScreen")) $("homeScreen").hidden = false;
-    if ($("addressInput")) $("addressInput").value = "";
-    if ($("searchInput")) $("searchInput").value = "";
+    if ($("homeScreen")) {
+      $("homeScreen").hidden = false;
+    }
+
+    if ($("addressInput")) {
+      $("addressInput").value = "";
+    }
+
+    if ($("searchInput")) {
+      $("searchInput").value = "";
+    }
 
     this.renderTabs();
   },
@@ -156,85 +242,42 @@ const browser = {
   showPage(url) {
     this.hideViews();
 
-    if ($("pageScreen")) $("pageScreen").hidden = false;
-    if ($("webFrame")) $("webFrame").src = url;
-    if ($("addressInput")) $("addressInput").value = url;
+    if ($("pageScreen")) {
+      $("pageScreen").hidden = false;
+    }
+
+    if ($("webFrame")) {
+      $("webFrame").src = url;
+    }
+
+    if ($("addressInput")) {
+      $("addressInput").value = url;
+    }
 
     const status = document.querySelector(".status-text");
 
     if (status) {
       try {
-        status.textContent = "Viewing " + new URL(url).hostname.replace(/^www\./i, "");
+        const hostname = new URL(url).hostname
+          .replace(/^www\./i, "");
+
+        status.textContent = "Viewing " + hostname;
       } catch {
         status.textContent = "Website view";
       }
     }
   },
 
-  searchUrl(query) {
-    const engine = $("searchEngine") ? $("searchEngine").value : "google";
-
-    const base = engine === "bing"
-      ? "https://www.bing.com/search?q="
-      : "https://www.google.com/search?q=";
-
-    return {
-      url: base + encodeURIComponent(query),
-      title: engine === "bing" ? "Bing Search" : "Google Search"
-    };
+  getHost(url) {
+    try {
+      return new URL(url).hostname
+        .replace(/^www\./i, "");
+    } catch {
+      return "Website";
+    }
   },
 
-  resolve(value, alwaysSearch = false) {
-    const input = value.trim();
-    if (!input) return null;
-
-    if (/^build\s+website\s+bd$/i.test(input)) {
-      return {
-        url: BUILD_WEBSITE_URL,
-        title: "Build Website BD"
-      };
-    }
-
-    if (!alwaysSearch && /^https?:\/\//i.test(input)) {
-      try {
-        const parsed = new URL(input);
-
-        if (parsed.protocol === "https:" || parsed.protocol === "http:") {
-          return {
-            url: parsed.href,
-            title: parsed.hostname.replace(/^www\./i, "")
-          };
-        }
-      } catch {
-        return this.searchUrl(input);
-      }
-    }
-
-    if (!alwaysSearch && !/\s/.test(input) &&
-        /^(localhost|[\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/i.test(input)) {
-      try {
-        const parsed = new URL("https://" + input);
-
-        return {
-          url: parsed.href,
-          title: parsed.hostname.replace(/^www\./i, "")
-        };
-      } catch {
-        return this.searchUrl(input);
-      }
-    }
-
-    return this.searchUrl(input);
-  },
-
-  navigate(value, alwaysSearch = false) {
-    const result = this.resolve(value, alwaysSearch);
-
-    if (!result) {
-      if ($("addressInput")) $("addressInput").focus();
-      return;
-    }
-
+  navigate(url) {
     let tab = this.current();
 
     if (!tab) {
@@ -242,31 +285,28 @@ const browser = {
       tab = this.current();
     }
 
-    tab.history = tab.history.slice(0, tab.historyIndex + 1);
-    tab.history.push(result.url);
+    tab.history = tab.history.slice(
+      0,
+      tab.historyIndex + 1
+    );
+
+    tab.history.push(url);
     tab.historyIndex = tab.history.length - 1;
-    tab.url = result.url;
-    tab.title = result.title;
+    tab.url = url;
+    tab.title = this.getHost(url);
 
     this.renderTabs();
-    this.showPage(result.url);
-  },
-
-  host(url) {
-    try {
-      return new URL(url).hostname.replace(/^www\./i, "");
-    } catch {
-      return "Website";
-    }
+    this.showPage(url);
   },
 
   back() {
     const tab = this.current();
+
     if (!tab || tab.historyIndex <= 0) return;
 
     tab.historyIndex--;
     tab.url = tab.history[tab.historyIndex];
-    tab.title = this.host(tab.url);
+    tab.title = this.getHost(tab.url);
 
     this.renderTabs();
     this.showPage(tab.url);
@@ -275,11 +315,16 @@ const browser = {
   forward() {
     const tab = this.current();
 
-    if (!tab || tab.historyIndex >= tab.history.length - 1) return;
+    if (
+      !tab ||
+      tab.historyIndex >= tab.history.length - 1
+    ) {
+      return;
+    }
 
     tab.historyIndex++;
     tab.url = tab.history[tab.historyIndex];
-    tab.title = this.host(tab.url);
+    tab.title = this.getHost(tab.url);
 
     this.renderTabs();
     this.showPage(tab.url);
@@ -310,20 +355,59 @@ const browser = {
     const tab = this.current();
 
     if (tab && tab.url) {
-      window.open(tab.url, "_blank", "noopener,noreferrer");
+      openExternalURL(tab.url);
     }
   }
 };
 
+/* Address bar:
+   Search text opens Google/Bing results outside the iframe.
+   Direct website addresses use the website viewer.
+   Build Website BD opens the requested site externally.
+*/
+
 bind("addressForm", "submit", (event) => {
   event.preventDefault();
-  browser.navigate($("addressInput").value);
+
+  const input = $("addressInput").value.trim();
+  if (!input) return;
+
+  if (isBuildWebsiteBD(input)) {
+    openExternalURL(BUILD_WEBSITE_URL);
+    return;
+  }
+
+  if (isWebsiteAddress(input)) {
+    let url = input;
+
+    if (!/^https?:\/\//i.test(url)) {
+      url = "https://" + url;
+    }
+
+    browser.navigate(url);
+    return;
+  }
+
+  openExternalURL(getSearchURL(input));
 });
+
+/* Homepage search opens search results in a new browser tab. */
 
 bind("searchForm", "submit", (event) => {
   event.preventDefault();
-  browser.navigate($("searchInput").value, true);
+
+  const query = $("searchInput").value.trim();
+  if (!query) return;
+
+  if (isBuildWebsiteBD(query)) {
+    openExternalURL(BUILD_WEBSITE_URL);
+    return;
+  }
+
+  openExternalURL(getSearchURL(query));
 });
+
+/* Browser controls */
 
 bind("backButton", "click", () => browser.back());
 bind("forwardButton", "click", () => browser.forward());
@@ -340,28 +424,57 @@ bind("brandHome", "click", (event) => {
   }
 });
 
+/* Quick links open externally to avoid iframe restrictions. */
+
 document.querySelectorAll(".quick-link[data-url]").forEach((button) => {
-  button.addEventListener("click", () => browser.navigate(button.dataset.url));
+  button.addEventListener("click", () => {
+    const url = button.dataset.url;
+    if (url) openExternalURL(url);
+  });
 });
 
-document.addEventListener("keydown", (event) => {
-  const isMac = navigator.platform.toLowerCase().includes("mac");
-  const modifier = isMac ? event.metaKey : event.ctrlKey;
+/* Keyboard shortcuts */
 
-  if (modifier && event.key.toLowerCase() === "l" && $("addressInput")) {
+document.addEventListener("keydown", (event) => {
+  const isMac = navigator.platform
+    .toLowerCase()
+    .includes("mac");
+
+  const modifier = isMac
+    ? event.metaKey
+    : event.ctrlKey;
+
+  if (
+    modifier &&
+    event.key.toLowerCase() === "l" &&
+    $("addressInput")
+  ) {
     event.preventDefault();
     $("addressInput").focus();
     $("addressInput").select();
   }
 
-  if (modifier && event.key.toLowerCase() === "t" && $("newTabButton")) {
+  if (
+    modifier &&
+    event.key.toLowerCase() === "t" &&
+    $("newTabButton")
+  ) {
     event.preventDefault();
     browser.createTab();
   }
 
-  if (event.altKey && event.key === "ArrowLeft") browser.back();
-  if (event.altKey && event.key === "ArrowRight") browser.forward();
+  if (event.altKey && event.key === "ArrowLeft") {
+    event.preventDefault();
+    browser.back();
+  }
+
+  if (event.altKey && event.key === "ArrowRight") {
+    event.preventDefault();
+    browser.forward();
+  }
 });
+
+/* Start background particles and browser tab system. */
 
 makeParticles();
 
