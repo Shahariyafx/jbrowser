@@ -5,7 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#050505">
+  <meta name="description" content="J Browser - a monochrome web experience.">
   <title>J Browser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -23,7 +27,7 @@
 
   <div class="app-shell">
     <header class="topbar">
-      <a class="brand" href="index.html" id="brandHome">
+      <a class="brand" href="index.html" id="brandHome" aria-label="J Browser home">
         <span class="brand-logo">J</span>
         <span class="brand-text">
           <strong>J BROWSER</strong>
@@ -32,37 +36,37 @@
       </a>
 
       <div class="tab-area">
-        <div class="tabs" id="tabList"></div>
-        <button class="plain-button" id="newTabButton" type="button">NEW TAB</button>
+        <div class="tabs" id="tabList" aria-label="Open tabs"></div>
+        <button class="ui-button" id="newTabButton" type="button">NEW TAB</button>
       </div>
 
-      <a class="credits-nav-link" href="credits.html">CREDITS</a>
+      <a class="ui-button credits-nav-link" href="credits.html">CREDITS</a>
     </header>
 
     <nav class="browser-toolbar" aria-label="Browser controls">
       <div class="nav-buttons">
-        <button class="control-button" id="backButton" type="button" disabled>BACK</button>
-        <button class="control-button" id="forwardButton" type="button" disabled>NEXT</button>
-        <button class="control-button" id="refreshButton" type="button">RELOAD</button>
-        <button class="control-button" id="homeButton" type="button">HOME</button>
+        <button class="ui-button control-button" id="backButton" type="button" disabled>BACK</button>
+        <button class="ui-button control-button" id="forwardButton" type="button" disabled>NEXT</button>
+        <button class="ui-button control-button" id="refreshButton" type="button">RELOAD</button>
+        <button class="ui-button control-button" id="homeButton" type="button">HOME</button>
       </div>
 
       <form class="address-form" id="addressForm">
         <span class="address-label">WEB</span>
-        <input id="addressInput" type="text" autocomplete="off" spellcheck="false" placeholder="Enter website address or search" aria-label="Website address">
+        <input id="addressInput" type="text" autocomplete="off" spellcheck="false" placeholder="Search or enter a website address" aria-label="Website address">
         <button class="solid-button" type="submit">GO</button>
       </form>
 
-      <button class="control-button outside-button" id="externalButton" type="button">OPEN OUTSIDE</button>
+      <button class="ui-button outside-button" id="externalButton" type="button">OPEN OUTSIDE</button>
     </nav>
 
     <main class="main-view">
       <section class="home-screen" id="homeScreen">
         <div class="home-content">
-          <div class="hero-logo">J</div>
-          <p class="eyebrow">A NEW WAY TO EXPLORE</p>
-          <h1>Explore your <span>world.</span></h1>
-          <p class="hero-description">Search, discover and explore from one simple place.</p>
+          <div class="hero-logo" aria-hidden="true">J</div>
+          <p class="eyebrow">A MONOCHROME WEB EXPERIENCE</p>
+          <h1 class="launcher-title">J <span>LAUNCHER</span></h1>
+          <p class="hero-description">YOUR WORLD. YOUR EXPERIENCE.</p>
 
           <form class="search-panel" id="searchForm">
             <label class="engine-control">
@@ -72,26 +76,33 @@
                 <option value="bing">Bing</option>
               </select>
             </label>
+
             <input id="searchInput" type="text" autocomplete="off" placeholder="Search the web..." aria-label="Search the web">
             <button class="solid-button search-button" type="submit">SEARCH</button>
           </form>
 
-          <div class="quick-heading">QUICK ACCESS</div>
-          <div class="quick-links">
+          <p class="quick-heading">QUICK ACCESS</p>
+
+          <div class="quick-links" aria-label="Quick access websites">
             <button class="quick-link" type="button" data-url="https://www.google.com">
-              <span class="quick-icon">G</span><span>Google</span>
+              <span class="quick-icon">G</span>
+              <span>Google</span>
             </button>
             <button class="quick-link" type="button" data-url="https://www.bing.com">
-              <span class="quick-icon">B</span><span>Bing</span>
+              <span class="quick-icon">B</span>
+              <span>Bing</span>
             </button>
             <button class="quick-link" type="button" data-url="https://www.youtube.com">
-              <span class="quick-icon">YT</span><span>YouTube</span>
+              <span class="quick-icon">YT</span>
+              <span>YouTube</span>
             </button>
             <button class="quick-link" type="button" data-url="https://www.wikipedia.org">
-              <span class="quick-icon">W</span><span>Wikipedia</span>
+              <span class="quick-icon">W</span>
+              <span>Wikipedia</span>
             </button>
             <button class="quick-link" type="button" data-url="https://github.com">
-              <span class="quick-icon">GH</span><span>GitHub</span>
+              <span class="quick-icon">GH</span>
+              <span>GitHub</span>
             </button>
           </div>
 
@@ -101,7 +112,7 @@
               <strong>MEET THE TEAM</strong>
               <small>See the people behind J Browser</small>
             </span>
-            <span class="credits-card-label">CREDITS PAGE</span>
+            <span class="credits-card-label">CREDITS</span>
           </a>
         </div>
 
@@ -118,12 +129,14 @@
           <span class="status-text">Website view</span>
           <span class="web-hint">Some websites block embedded viewing.</span>
         </div>
+
         <div class="frame-holder">
           <iframe id="webFrame" title="Website viewer" src="about:blank" referrerpolicy="strict-origin-when-cross-origin" allow="autoplay; encrypted-media; picture-in-picture; fullscreen"></iframe>
         </div>
+
         <div class="embed-message">
-          <span>Website not loading? It may block embedded viewing.</span>
-          <button class="control-button" id="noticeOpenButton" type="button">OPEN WEBSITE OUTSIDE</button>
+          <span>This website may not allow embedded viewing.</span>
+          <button class="ui-button" id="noticeOpenButton" type="button">OPEN WEBSITE OUTSIDE</button>
         </div>
       </section>
     </main>
