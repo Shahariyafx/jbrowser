@@ -5,6 +5,7 @@ const $ = (id) => document.getElementById(id);
 const BUILD_WEBSITE_ADDRESS_URL = "https://tinyurl.com/buildwebbd";
 const BUILD_WEBSITE_SEARCH_URL = "https://sites.google.com/view/buildwebsitesbd-jihanstudiobd/home";
 
+let selectedEngine = "google";
 let tabs = [];
 let activeTabId = null;
 let nextTabId = 1;
@@ -17,7 +18,8 @@ function openOutside(url) {
   const opened = window.open(url, "_blank", "noopener,noreferrer");
 
   if (!opened) {
-    $("statusText").textContent = "Pop-up blocked. Allow pop-ups to open this website.";
+    $("statusText").textContent =
+      "Pop-up blocked. Allow pop-ups to open this website.";
   }
 
   return opened;
@@ -35,8 +37,6 @@ function isKnownBlockedHost(host) {
   return (
     host === "google.com" ||
     host.endsWith(".google.com") ||
-    host === "google.co" ||
-    host.endsWith(".google.co") ||
     host === "youtube.com" ||
     host.endsWith(".youtube.com") ||
     host === "youtu.be" ||
@@ -63,10 +63,9 @@ function normalizeAddress(value) {
 }
 
 function getSearchRequest(query) {
-  const engine = $("searchEngine")?.value || "google";
   const encoded = encodeURIComponent(query.trim());
 
-  if (engine === "bing") {
+  if (selectedEngine === "bing") {
     return {
       url: "https://www.bing.com/search?q=" + encoded,
       mode: "embed",
@@ -74,7 +73,7 @@ function getSearchRequest(query) {
     };
   }
 
-  if (engine === "opera") {
+  if (selectedEngine === "opera") {
     return {
       url: "https://www.google.com/search?q=" + encoded,
       mode: "external",
@@ -82,7 +81,7 @@ function getSearchRequest(query) {
     };
   }
 
-  if (engine === "firefox") {
+  if (selectedEngine === "firefox") {
     return {
       url: "https://www.google.com/search?q=" + encoded,
       mode: "external",
@@ -110,8 +109,14 @@ function makeParticles() {
     particle.className = "pixel";
     particle.style.left = Math.random() * 100 + "%";
     particle.style.top = Math.random() * 100 + "%";
-    particle.style.setProperty("--duration", (10 + Math.random() * 18) + "s");
-    particle.style.setProperty("--delay", (-Math.random() * 20) + "s");
+    particle.style.setProperty(
+      "--duration",
+      (10 + Math.random() * 18) + "s"
+    );
+    particle.style.setProperty(
+      "--delay",
+      (-Math.random() * 20) + "s"
+    );
     particle.style.opacity = (0.2 + Math.random() * 0.7).toString();
 
     layer.appendChild(particle);
@@ -121,9 +126,18 @@ function makeParticles() {
 function updateNavigationButtons() {
   const tab = getActiveTab();
 
-  $("backButton").disabled = !tab || tab.historyIndex <= 0;
-  $("forwardButton").disabled =
-    !tab || tab.historyIndex >= tab.history.length - 1;
+  const canGoBack =
+    tab &&
+    tab.view === "page" &&
+    tab.historyIndex > 0;
+
+  const canGoForward =
+    tab &&
+    tab.view === "page" &&
+    tab.historyIndex < tab.history.length - 1;
+
+  $("backButton").disabled = !canGoBack;
+  $("forwardButton").disabled = !canGoForward;
 }
 
 function renderTabs() {
@@ -131,47 +145,37 @@ function renderTabs() {
   tabList.innerHTML = "";
 
   tabs.forEach((tab) => {
-    const tabButton = document.createElement("button");
-    tabButton.type = "button";
-    tabButton.className = "browser-tab";
+    const tabElement = document.createElement("div");
+    tabElement.className = "browser-tab";
 
     if (tab.id === activeTabId) {
-      tabButton.classList.add("active");
+      tabElement.classList.add("active");
     }
 
-    const title = document.createElement("span");
-    title.className = "tab-title";
-    title.textContent = tab.title;
+    const selectButton = document.createElement("button");
+    selectButton.type = "button";
+    selectButton.className = "tab-select";
+    selectButton.textContent = tab.title;
+    selectButton.title = tab.title;
 
-    const close = document.createElement("span");
-    close.className = "tab-close";
-    close.textContent = "×";
-    close.setAttribute("role", "button");
-    close.setAttribute("aria-label", "Close tab");
-
-    tabButton.appendChild(title);
-    tabButton.appendChild(close);
-
-    tabButton.addEventListener("click", (event) => {
-      if (event.target === close) {
-        closeTab(tab.id);
-        return;
-      }
-
+    selectButton.addEventListener("click", () => {
       switchTab(tab.id);
     });
 
-    tabList.appendChild(tabButton);
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "tab-close";
+    closeButton.textContent = "×";
+    closeButton.setAttribute("aria-label", "Close tab");
+
+    closeButton.addEventListener("click", () => {
+      closeTab(tab.id);
+    });
+
+    tabElement.appendChild(selectButton);
+    tabElement.appendChild(closeButton);
+    tabList.appendChild(tabElement);
   });
-}
-
-function updateTabTitle(title) {
-  const tab = getActiveTab();
-
-  if (!tab) return;
-
-  tab.title = title || "New Tab";
-  renderTabs();
 }
 
 function showHome() {
@@ -190,7 +194,9 @@ function showHome() {
   renderTabs();
   updateNavigationButtons();
 
-  setTimeout(() => $("searchInput").focus(), 100);
+  setTimeout(() => {
+    $("searchInput").focus();
+  }, 100);
 }
 
 function showPage(url, title) {
@@ -283,24 +289,25 @@ function goBack() {
   tab.url = tab.history[tab.historyIndex];
   tab.view = "page";
 
-  const url = tab.url;
-
-  showPage(url, "Previous Page");
+  showPage(tab.url, "Previous Page");
   updateNavigationButtons();
 }
 
 function goForward() {
   const tab = getActiveTab();
 
-  if (!tab || tab.historyIndex >= tab.history.length - 1) return;
+  if (
+    !tab ||
+    tab.historyIndex >= tab.history.length - 1
+  ) {
+    return;
+  }
 
   tab.historyIndex++;
   tab.url = tab.history[tab.historyIndex];
   tab.view = "page";
 
-  const url = tab.url;
-
-  showPage(url, "Next Page");
+  showPage(tab.url, "Next Page");
   updateNavigationButtons();
 }
 
@@ -316,7 +323,13 @@ function refreshPage() {
     return;
   }
 
-  $("webFrame").src = tab.url;
+  const frame = $("webFrame");
+  frame.src = "about:blank";
+
+  setTimeout(() => {
+    frame.src = tab.url;
+  }, 50);
+
   $("statusText").textContent = "Refreshing website...";
 }
 
@@ -350,7 +363,10 @@ function submitAddress(value) {
   }
 
   if (!isWebsiteAddress(address)) {
-    const url = "https://www.google.com/search?q=" + encodeURIComponent(address);
+    const url =
+      "https://www.google.com/search?q=" +
+      encodeURIComponent(address);
+
     openOutside(url);
     return;
   }
@@ -377,11 +393,26 @@ function openQuickLink(url) {
   navigate(url, host || "Website");
 }
 
+function selectSearchEngine(engine, button) {
+  selectedEngine = engine;
+
+  document.querySelectorAll(".engine-option").forEach((option) => {
+    option.classList.toggle("active", option === button);
+  });
+
+  const panel = $("searchForm");
+
+  panel.classList.remove("engine-changed");
+
+  requestAnimationFrame(() => {
+    panel.classList.add("engine-changed");
+  });
+}
+
 $("searchForm").addEventListener("submit", (event) => {
   event.preventDefault();
 
-  const input = $("searchInput");
-  submitSearch(input.value);
+  submitSearch($("searchInput").value);
 });
 
 $("addressForm").addEventListener("submit", (event) => {
@@ -390,13 +421,9 @@ $("addressForm").addEventListener("submit", (event) => {
   submitAddress($("addressInput").value);
 });
 
-$("searchEngine").addEventListener("change", () => {
-  const panel = $("searchForm");
-
-  panel.classList.remove("engine-changed");
-
-  requestAnimationFrame(() => {
-    panel.classList.add("engine-changed");
+document.querySelectorAll(".engine-option").forEach((button) => {
+  button.addEventListener("click", () => {
+    selectSearchEngine(button.dataset.engine, button);
   });
 });
 
@@ -405,6 +432,7 @@ $("forwardButton").addEventListener("click", goForward);
 $("refreshButton").addEventListener("click", refreshPage);
 $("homeButton").addEventListener("click", goHome);
 $("newTabButton").addEventListener("click", createTab);
+
 $("brandHome").addEventListener("click", (event) => {
   event.preventDefault();
   goHome();
