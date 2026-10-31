@@ -7,7 +7,6 @@
 :root {
   color-scheme: dark;
   --background: #050505;
-  --panel: rgba(12, 12, 12, 0.78);
   --border: rgba(255, 255, 255, 0.13);
   --white: #ffffff;
   --muted: #929292;
@@ -28,8 +27,7 @@ body {
 }
 
 button,
-input,
-select {
+input {
   font: inherit;
 }
 
@@ -39,8 +37,7 @@ button {
 
 button:focus-visible,
 a:focus-visible,
-input:focus-visible,
-select:focus-visible {
+input:focus-visible {
   outline: 2px solid white;
   outline-offset: 3px;
 }
@@ -89,8 +86,9 @@ select:focus-visible {
   border-radius: 50%;
   background: #ededed;
   opacity: 0.85;
-  box-shadow: 0 0 35px rgba(255, 255, 255, 0.28),
-              0 0 90px rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 0 35px rgba(255, 255, 255, 0.28),
+    0 0 90px rgba(255, 255, 255, 0.12);
   animation: moonFloat 8s ease-in-out infinite alternate;
 }
 
@@ -109,7 +107,11 @@ select:focus-visible {
     linear-gradient(135deg, transparent 30%, #252525 30% 48%, transparent 48%) 0 0 / 180px 100%,
     linear-gradient(45deg, transparent 25%, #303030 25% 50%, transparent 50%) 60px 20px / 220px 100%,
     linear-gradient(#161616, #050505);
-  clip-path: polygon(0 62%, 12% 34%, 22% 55%, 36% 18%, 48% 58%, 62% 30%, 75% 54%, 88% 20%, 100% 60%, 100% 100%, 0 100%);
+  clip-path: polygon(
+    0 62%, 12% 34%, 22% 55%, 36% 18%,
+    48% 58%, 62% 30%, 75% 54%, 88% 20%,
+    100% 60%, 100% 100%, 0 100%
+  );
   animation: terrainBack 18s ease-in-out infinite alternate;
 }
 
@@ -120,7 +122,11 @@ select:focus-visible {
   background:
     repeating-linear-gradient(90deg, #161616 0 30px, #111 30px 60px),
     linear-gradient(#161616, #030303);
-  clip-path: polygon(0 45%, 15% 23%, 29% 48%, 43% 20%, 60% 46%, 73% 25%, 87% 43%, 100% 18%, 100% 100%, 0 100%);
+  clip-path: polygon(
+    0 45%, 15% 23%, 29% 48%, 43% 20%,
+    60% 46%, 73% 25%, 87% 43%, 100% 18%,
+    100% 100%, 0 100%
+  );
   animation: terrainFront 14s ease-in-out infinite alternate;
 }
 
@@ -130,7 +136,12 @@ select:focus-visible {
   height: 35%;
   bottom: 8%;
   left: -25%;
-  background: linear-gradient(90deg, transparent, rgba(190, 190, 190, 0.08), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(190, 190, 190, 0.08),
+    transparent
+  );
   filter: blur(35px);
   animation: fogMove 18s ease-in-out infinite alternate;
 }
@@ -249,18 +260,16 @@ select:focus-visible {
 }
 
 .browser-tab {
-  min-width: 115px;
+  min-width: 125px;
   max-width: 180px;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px;
+  padding: 5px 8px;
   border: 1px solid transparent;
   border-radius: 8px;
   color: #999;
   background: rgba(255, 255, 255, 0.035);
-  cursor: pointer;
-  font-size: 11px;
   transition: 0.25s ease;
 }
 
@@ -270,15 +279,23 @@ select:focus-visible {
   background: rgba(255, 255, 255, 0.11);
 }
 
-.tab-title {
+.tab-select {
   flex: 1;
+  min-width: 0;
+  padding: 4px 0;
   overflow: hidden;
+  text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: inherit;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 11px;
 }
 
 .tab-close {
-  padding: 0 2px;
+  padding: 0 3px;
   color: #888;
   border: 0;
   background: transparent;
@@ -346,6 +363,11 @@ select:focus-visible {
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.08);
 }
 
+.address-form input::placeholder,
+.search-row input::placeholder {
+  color: #777;
+}
+
 .address-go {
   padding: 0 19px;
   border-radius: 9px;
@@ -391,8 +413,9 @@ select:focus-visible {
   font-weight: 900;
   letter-spacing: -3px;
   line-height: 1.1;
-  text-shadow: 0 0 12px rgba(255, 255, 255, 0.35),
-               0 0 35px rgba(255, 255, 255, 0.13);
+  text-shadow:
+    0 0 12px rgba(255, 255, 255, 0.35),
+    0 0 35px rgba(255, 255, 255, 0.13);
   animation: titleGlow 4s ease-in-out infinite alternate;
 }
 
@@ -412,7 +435,7 @@ select:focus-visible {
   padding: 19px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 15px;
   border: 1px solid var(--border);
   border-radius: 18px;
   background: rgba(5, 5, 5, 0.75);
@@ -431,7 +454,7 @@ select:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 9px;
+  gap: 12px;
 }
 
 .engine-label {
@@ -441,29 +464,43 @@ select:focus-visible {
   letter-spacing: 2px;
 }
 
-#searchEngine {
+.engine-options {
   width: 100%;
-  padding: 13px 14px;
-  border: 1px solid #393939;
-  border-radius: 10px;
-  outline: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+}
+
+.engine-option {
+  min-height: 43px;
+  padding: 10px 8px;
+  color: #aaa;
   background: #111;
-  color: white;
-  font-size: 12px;
+  border: 1px solid #383838;
+  border-radius: 10px;
   cursor: pointer;
-  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+  font-size: 11px;
+  font-weight: 700;
+  transition: 0.3s ease;
 }
 
-#searchEngine:hover,
-#searchEngine:focus {
-  border-color: white;
-  box-shadow: 0 0 16px rgba(255, 255, 255, 0.12);
-  transform: translateY(-1px);
-}
-
-#searchEngine option {
+.engine-option:hover {
   color: white;
-  background: #101010;
+  border-color: white;
+  background: #202020;
+  transform: translateY(-3px);
+}
+
+.engine-option.active {
+  color: #050505;
+  background: white;
+  border-color: white;
+  box-shadow: 0 0 18px #ffffff35;
+  transform: translateY(-2px);
+}
+
+.search-panel.engine-changed {
+  animation: engineChange 0.4s ease;
 }
 
 .search-row {
@@ -489,11 +526,6 @@ select:focus-visible {
   box-shadow: 0 0 17px rgba(255, 255, 255, 0.09);
 }
 
-.search-row input::placeholder,
-.address-form input::placeholder {
-  color: #777;
-}
-
 .search-button {
   padding: 0 22px;
   border-radius: 11px;
@@ -510,10 +542,6 @@ select:focus-visible {
   background: transparent;
   box-shadow: 0 0 24px rgba(255, 255, 255, 0.17);
   transform: translateY(-2px);
-}
-
-.search-panel.engine-changed {
-  animation: engineChange 0.4s ease;
 }
 
 .quick-section {
@@ -660,19 +688,29 @@ select:focus-visible {
 }
 
 @keyframes particleFloat {
-  from { transform: translateY(20px); opacity: 0; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
   15% { opacity: 0.8; }
   85% { opacity: 0.7; }
-  to { transform: translateY(-110vh); opacity: 0; }
+
+  to {
+    transform: translateY(-110vh);
+    opacity: 0;
+  }
 }
 
 @keyframes titleGlow {
   from {
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.18);
   }
+
   to {
-    text-shadow: 0 0 18px rgba(255, 255, 255, 0.5),
-                 0 0 42px rgba(255, 255, 255, 0.18);
+    text-shadow:
+      0 0 18px rgba(255, 255, 255, 0.5),
+      0 0 42px rgba(255, 255, 255, 0.18);
   }
 }
 
@@ -682,13 +720,27 @@ select:focus-visible {
 }
 
 @keyframes homeAppear {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes engineChange {
-  0% { opacity: 0.65; transform: scale(0.985); }
-  100% { opacity: 1; transform: scale(1); }
+  0% {
+    opacity: 0.65;
+    transform: scale(0.985);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @media (max-width: 700px) {
@@ -751,6 +803,12 @@ select:focus-visible {
   .brand {
     font-size: 11px;
     letter-spacing: 1px;
+  }
+}
+
+@media (max-width: 450px) {
+  .engine-options {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
