@@ -5,9 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#050505">
   <title>J Browser</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -32,24 +34,27 @@
 
       <div class="header-actions">
         <a href="credits.html" class="header-link">Credits</a>
-        <button class="new-tab-button" id="newTabButton" type="button">New Tab</button>
+        <button class="new-tab-button" id="newTabButton" type="button">
+          New Tab
+        </button>
       </div>
     </header>
 
     <div class="tabs-row" id="tabList"></div>
 
     <div class="browser-toolbar">
+
       <div class="navigation-controls">
-        <button class="tool-button" id="backButton" type="button" aria-label="Back">BACK</button>
-        <button class="tool-button" id="forwardButton" type="button" aria-label="Forward">NEXT</button>
+        <button class="tool-button" id="backButton" type="button">BACK</button>
+        <button class="tool-button" id="forwardButton" type="button">NEXT</button>
         <button class="tool-button" id="refreshButton" type="button">REFRESH</button>
         <button class="tool-button" id="homeButton" type="button">HOME</button>
       </div>
 
       <form class="address-form" id="addressForm">
         <input
-          id="addressInput"
           type="text"
+          id="addressInput"
           placeholder="Search or enter website address"
           autocomplete="off"
           spellcheck="false"
@@ -57,6 +62,7 @@
         >
         <button type="submit" class="address-go">GO</button>
       </form>
+
     </div>
 
     <main class="browser-content">
@@ -64,6 +70,7 @@
       <section class="home-screen" id="homeScreen">
 
         <div class="home-center">
+
           <img
             src="logo.png"
             alt="J Browser Logo"
@@ -79,16 +86,48 @@
           <form class="search-panel" id="searchForm">
 
             <div class="engine-control">
-              <label class="engine-label" for="searchEngine">SEARCH WITH</label>
-              <select id="searchEngine" aria-label="Choose search option">
-                <option value="google">Google</option>
-                <option value="bing">Bing</option>
-                <option value="opera">Opera (Google)</option>
-                <option value="firefox">Firefox (Google)</option>
-              </select>
+
+              <label class="engine-label">SEARCH WITH</label>
+
+              <div class="engine-options">
+
+                <button
+                  type="button"
+                  class="engine-option active"
+                  data-engine="google"
+                >
+                  Google
+                </button>
+
+                <button
+                  type="button"
+                  class="engine-option"
+                  data-engine="bing"
+                >
+                  Bing
+                </button>
+
+                <button
+                  type="button"
+                  class="engine-option"
+                  data-engine="opera"
+                >
+                  Opera
+                </button>
+
+                <button
+                  type="button"
+                  class="engine-option"
+                  data-engine="firefox"
+                >
+                  Firefox
+                </button>
+
+              </div>
             </div>
 
             <div class="search-row">
+
               <input
                 type="text"
                 id="searchInput"
@@ -96,32 +135,55 @@
                 autocomplete="off"
                 required
               >
-              <button class="search-button" type="submit">SEARCH</button>
+
+              <button class="search-button" type="submit">
+                SEARCH
+              </button>
+
             </div>
 
           </form>
 
           <div class="quick-section">
+
             <p class="quick-heading">QUICK ACCESS</p>
 
             <div class="quick-links">
-              <button class="quick-link" type="button" data-url="https://www.wikipedia.org/">Wikipedia</button>
-              <button class="quick-link" type="button" data-url="https://www.youtube.com/">YouTube</button>
-              <button class="quick-link" type="button" data-url="https://github.com/">GitHub</button>
-              <button class="quick-link" type="button" data-url="https://www.google.com/">Google</button>
+              <button class="quick-link" type="button" data-url="https://www.wikipedia.org/">
+                Wikipedia
+              </button>
+
+              <button class="quick-link" type="button" data-url="https://www.youtube.com/">
+                YouTube
+              </button>
+
+              <button class="quick-link" type="button" data-url="https://github.com/">
+                GitHub
+              </button>
+
+              <button class="quick-link" type="button" data-url="https://www.google.com/">
+                Google
+              </button>
             </div>
+
           </div>
 
-          <p class="home-footer">J BROWSER <span>·</span> EXPLORE WITHOUT LIMITS</p>
-        </div>
+          <p class="home-footer">
+            J BROWSER <span>·</span> EXPLORE WITHOUT LIMITS
+          </p>
 
+        </div>
       </section>
 
       <section class="page-screen" id="pageScreen" hidden>
+
         <div class="page-info">
           <span class="status-dot"></span>
           <span class="status-text" id="statusText">Loading website...</span>
-          <button id="externalButton" type="button">OPEN EXTERNALLY</button>
+
+          <button id="externalButton" type="button">
+            OPEN EXTERNALLY
+          </button>
         </div>
 
         <iframe
@@ -130,15 +192,16 @@
           referrerpolicy="strict-origin-when-cross-origin"
           allow="fullscreen; autoplay; clipboard-read; clipboard-write"
         ></iframe>
+
       </section>
 
     </main>
 
-    <div class="browser-bottom">
+    <footer class="browser-bottom">
       <span>J BROWSER</span>
       <span class="bottom-separator">|</span>
       <span>POWERED BY THE WEB</span>
-    </div>
+    </footer>
 
   </div>
 
