@@ -1,28 +1,31 @@
-
 "use strict";
 
 const $ = (id) => document.getElementById(id);
 
-const BUILD_WEBSITE_URL =
-  "https://sites.google.com/view/buildwebsitesbd-jihanstudiobd/home";
+const BUILD_WEBSITE_ADDRESS_URL = "https://tinyurl.com/buildwebbd";
+const BUILD_WEBSITE_SEARCH_URL = "https://sites.google.com/view/buildwebsitesbd-jihanstudiobd/home";
 
-function bind(id, eventName, callback) {
-  const element = $(id);
-  if (element) element.addEventListener(eventName, callback);
+let tabs = [];
+let activeTabId = null;
+let nextTabId = 1;
+
+function getActiveTab() {
+  return tabs.find((tab) => tab.id === activeTabId) || null;
 }
 
 function openOutside(url) {
-  window.open(url, "_blank", "noopener,noreferrer");
+  const opened = window.open(url, "_blank", "noopener,noreferrer");
+
+  if (!opened) {
+    $("statusText").textContent = "Pop-up blocked. Allow pop-ups to open this website.";
+  }
+
+  return opened;
 }
 
-function googleSearchURL(query) {
-  return "https://www.google.com/search?q=" +
-    encodeURIComponent(query.trim());
-}
-
-function hostFromURL(url) {
+function getHost(url) {
   try {
-    return new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+    return new URL(url).hostname.toLowerCase();
   } catch {
     return "";
   }
@@ -32,6 +35,8 @@ function isKnownBlockedHost(host) {
   return (
     host === "google.com" ||
     host.endsWith(".google.com") ||
+    host === "google.co" ||
+    host.endsWith(".google.co") ||
     host === "youtube.com" ||
     host.endsWith(".youtube.com") ||
     host === "youtu.be" ||
@@ -41,366 +46,410 @@ function isKnownBlockedHost(host) {
 }
 
 function isWebsiteAddress(value) {
-  const text = value.trim();
+  return (
+    /^https?:\/\//i.test(value) ||
+    /^[a-z0-9-]+\.[a-z]{2,}(\/.*)?$/i.test(value)
+  );
+}
 
-  if (/^https?:\/\//i.test(text)) {
-    try {
-      const parsed = new URL(text);
-      return parsed.protocol === "https:" ||
-        parsed.protocol === "http:";
-    } catch {
-      return false;
-    }
+function normalizeAddress(value) {
+  const trimmed = value.trim();
+
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
   }
 
-  return (
-    !/\s/.test(text) &&
-    /^(localhost|[\w-]+(\.[\w-]+)+)(:\d+)?(\/.*)?$/i.test(text)
-  );
+  return "https://" + trimmed;
+}
+
+function getSearchRequest(query) {
+  const engine = $("searchEngine")?.value || "google";
+  const encoded = encodeURIComponent(query.trim());
+
+  if (engine === "bing") {
+    return {
+      url: "https://www.bing.com/search?q=" + encoded,
+      mode: "embed",
+      title: "Bing Search"
+    };
+  }
+
+  if (engine === "opera") {
+    return {
+      url: "https://www.google.com/search?q=" + encoded,
+      mode: "external",
+      title: "Opera Search"
+    };
+  }
+
+  if (engine === "firefox") {
+    return {
+      url: "https://www.google.com/search?q=" + encoded,
+      mode: "external",
+      title: "Firefox Search"
+    };
+  }
+
+  return {
+    url: "https://www.google.com/search?q=" + encoded,
+    mode: "external",
+    title: "Google Search"
+  };
 }
 
 function makeParticles() {
   const layer = $("particleLayer");
 
-  if (
-    !layer ||
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  ) {
-    return;
-  }
+  if (!layer) return;
 
-  const count = window.innerWidth < 650 ? 12 : 24;
+  layer.innerHTML = "";
 
-  for (let i = 0; i < count; i++) {
-    const pixel = document.createElement("span");
-    pixel.className = "pixel";
-    pixel.style.left = `${Math.random() * 100}%`;
-    pixel.style.setProperty("--duration", `${9 + Math.random() * 12}s`);
-    pixel.style.setProperty("--delay", `${-Math.random() * 18}s`);
-    pixel.style.setProperty("--drift", `${(Math.random() - 0.5) * 100}px`);
-    layer.appendChild(pixel);
+  for (let i = 0; i < 45; i++) {
+    const particle = document.createElement("span");
+
+    particle.className = "pixel";
+    particle.style.left = Math.random() * 100 + "%";
+    particle.style.top = Math.random() * 100 + "%";
+    particle.style.setProperty("--duration", (10 + Math.random() * 18) + "s");
+    particle.style.setProperty("--delay", (-Math.random() * 20) + "s");
+    particle.style.opacity = (0.2 + Math.random() * 0.7).toString();
+
+    layer.appendChild(particle);
   }
 }
 
-const browser = {
-  tabs: [],
-  activeId: 0,
-  nextId: 1,
+function updateNavigationButtons() {
+  const tab = getActiveTab();
 
-  current() {
-    return this.tabs.find((tab) => tab.id === this.activeId) || null;
-  },
+  $("backButton").disabled = !tab || tab.historyIndex <= 0;
+  $("forwardButton").disabled =
+    !tab || tab.historyIndex >= tab.history.length - 1;
+}
 
-  createTab() {
-    const tab = {
-      id: this.nextId++,
-      title: "New Tab",
-      url: "",
-      history: [],
-      historyIndex: -1
-    };
+function renderTabs() {
+  const tabList = $("tabList");
+  tabList.innerHTML = "";
 
-    this.tabs.push(tab);
-    this.activeId = tab.id;
-    this.renderTabs();
-    this.showHome();
-  },
+  tabs.forEach((tab) => {
+    const tabButton = document.createElement("button");
+    tabButton.type = "button";
+    tabButton.className = "browser-tab";
 
-  renderTabs() {
-    const list = $("tabList");
-    if (!list) return;
+    if (tab.id === activeTabId) {
+      tabButton.classList.add("active");
+    }
 
-    list.replaceChildren();
+    const title = document.createElement("span");
+    title.className = "tab-title";
+    title.textContent = tab.title;
 
-    this.tabs.forEach((tab) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "tab" +
-        (tab.id === this.activeId ? " active" : "");
-      button.title = tab.title;
+    const close = document.createElement("span");
+    close.className = "tab-close";
+    close.textContent = "×";
+    close.setAttribute("role", "button");
+    close.setAttribute("aria-label", "Close tab");
 
-      const title = document.createElement("span");
-      title.className = "tab-title";
-      title.textContent = tab.title;
+    tabButton.appendChild(title);
+    tabButton.appendChild(close);
 
-      const close = document.createElement("span");
-      close.className = "tab-close";
-      close.textContent = "×";
-      close.title = "Close tab";
-      close.tabIndex = 0;
-      close.setAttribute("role", "button");
-      close.setAttribute("aria-label", "Close " + tab.title);
+    tabButton.addEventListener("click", (event) => {
+      if (event.target === close) {
+        closeTab(tab.id);
+        return;
+      }
 
-      const closeTab = (event) => {
-        event.stopPropagation();
-        this.removeTab(tab.id);
-      };
-
-      close.addEventListener("click", closeTab);
-
-      close.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          closeTab(event);
-        }
-      });
-
-      button.addEventListener("click", () => {
-        this.switchTab(tab.id);
-      });
-
-      button.append(title, close);
-      list.appendChild(button);
+      switchTab(tab.id);
     });
 
-    const tab = this.current();
+    tabList.appendChild(tabButton);
+  });
+}
 
-    if ($("backButton")) {
-      $("backButton").disabled = !tab || tab.historyIndex <= 0;
-    }
+function updateTabTitle(title) {
+  const tab = getActiveTab();
 
-    if ($("forwardButton")) {
-      $("forwardButton").disabled =
-        !tab || tab.historyIndex >= tab.history.length - 1;
-    }
-  },
+  if (!tab) return;
 
-  removeTab(id) {
-    const index = this.tabs.findIndex((tab) => tab.id === id);
-    if (index < 0) return;
+  tab.title = title || "New Tab";
+  renderTabs();
+}
 
-    const wasActive = this.activeId === id;
-    this.tabs.splice(index, 1);
+function showHome() {
+  $("homeScreen").hidden = false;
+  $("pageScreen").hidden = true;
+  $("addressInput").value = "";
 
-    if (this.tabs.length === 0) {
-      this.createTab();
-      return;
-    }
+  const tab = getActiveTab();
 
-    if (wasActive) {
-      this.activeId = this.tabs[Math.max(0, index - 1)].id;
-    }
-
-    this.renderTabs();
-    this.switchTab(this.activeId);
-  },
-
-  switchTab(id) {
-    const tab = this.tabs.find((item) => item.id === id);
-    if (!tab) return;
-
-    this.activeId = id;
-    this.renderTabs();
-
-    if (tab.url) {
-      this.showPage(tab.url);
-    } else {
-      this.showHome();
-    }
-  },
-
-  hideViews() {
-    if ($("homeScreen")) $("homeScreen").hidden = true;
-    if ($("pageScreen")) $("pageScreen").hidden = true;
-  },
-
-  showHome() {
-    this.hideViews();
-
-    if ($("homeScreen")) $("homeScreen").hidden = false;
-    if ($("addressInput")) $("addressInput").value = "";
-    if ($("searchInput")) $("searchInput").value = "";
-
-    this.renderTabs();
-  },
-
-  showPage(url) {
-    this.hideViews();
-
-    if ($("pageScreen")) $("pageScreen").hidden = false;
-    if ($("webFrame")) $("webFrame").src = url;
-    if ($("addressInput")) $("addressInput").value = url;
-
-    const status = document.querySelector(".status-text");
-
-    if (status) {
-      status.textContent = "Viewing " + hostFromURL(url);
-    }
-  },
-
-  navigate(url) {
-    let tab = this.current();
-
-    if (!tab) {
-      this.createTab();
-      tab = this.current();
-    }
-
-    tab.history = tab.history.slice(0, tab.historyIndex + 1);
-    tab.history.push(url);
-    tab.historyIndex = tab.history.length - 1;
-    tab.url = url;
-    tab.title = hostFromURL(url) || "Website";
-
-    this.renderTabs();
-    this.showPage(url);
-  },
-
-  back() {
-    const tab = this.current();
-    if (!tab || tab.historyIndex <= 0) return;
-
-    tab.historyIndex--;
-    tab.url = tab.history[tab.historyIndex];
-    tab.title = hostFromURL(tab.url) || "Website";
-
-    this.renderTabs();
-    this.showPage(tab.url);
-  },
-
-  forward() {
-    const tab = this.current();
-
-    if (!tab || tab.historyIndex >= tab.history.length - 1) {
-      return;
-    }
-
-    tab.historyIndex++;
-    tab.url = tab.history[tab.historyIndex];
-    tab.title = hostFromURL(tab.url) || "Website";
-
-    this.renderTabs();
-    this.showPage(tab.url);
-  },
-
-  home() {
-    const tab = this.current();
-
-    if (tab) {
-      tab.url = "";
-      tab.title = "New Tab";
-    }
-
-    this.showHome();
-  },
-
-  refresh() {
-    const tab = this.current();
-
-    if (tab && tab.url && $("webFrame")) {
-      $("webFrame").src = tab.url;
-    } else {
-      this.showHome();
-    }
-  },
-
-  openOutside() {
-    const tab = this.current();
-    if (tab && tab.url) openOutside(tab.url);
+  if (tab) {
+    tab.view = "home";
+    tab.url = "";
+    tab.title = "New Tab";
   }
-};
 
-/* Address bar: search text opens Google in a new tab. */
+  renderTabs();
+  updateNavigationButtons();
 
-bind("addressForm", "submit", (event) => {
-  event.preventDefault();
+  setTimeout(() => $("searchInput").focus(), 100);
+}
 
-  const input = $("addressInput").value.trim();
-  if (!input) return;
+function showPage(url, title) {
+  $("homeScreen").hidden = true;
+  $("pageScreen").hidden = false;
+  $("webFrame").src = url;
+  $("addressInput").value = url;
+  $("statusText").textContent = title || "Opening website...";
+}
 
-  if (/^build\s+website\s+bd$/i.test(input)) {
-    openOutside(BUILD_WEBSITE_URL);
+function navigate(url, title = "Website") {
+  const tab = getActiveTab();
+
+  if (!tab) return;
+
+  tab.history = tab.history.slice(0, tab.historyIndex + 1);
+  tab.history.push(url);
+  tab.historyIndex = tab.history.length - 1;
+  tab.view = "page";
+  tab.url = url;
+  tab.title = title;
+
+  renderTabs();
+  showPage(url, title);
+  updateNavigationButtons();
+}
+
+function switchTab(id) {
+  const tab = tabs.find((item) => item.id === id);
+
+  if (!tab) return;
+
+  activeTabId = id;
+  renderTabs();
+
+  if (tab.view === "page" && tab.url) {
+    showPage(tab.url, tab.title);
+  } else {
+    $("homeScreen").hidden = false;
+    $("pageScreen").hidden = true;
+    $("addressInput").value = "";
+  }
+
+  updateNavigationButtons();
+}
+
+function createTab() {
+  const tab = {
+    id: nextTabId++,
+    title: "New Tab",
+    view: "home",
+    url: "",
+    history: [],
+    historyIndex: -1
+  };
+
+  tabs.push(tab);
+  activeTabId = tab.id;
+
+  renderTabs();
+  switchTab(tab.id);
+}
+
+function closeTab(id) {
+  const index = tabs.findIndex((tab) => tab.id === id);
+
+  if (index === -1) return;
+
+  tabs.splice(index, 1);
+
+  if (tabs.length === 0) {
+    createTab();
     return;
   }
 
-  if (!isWebsiteAddress(input)) {
-    openOutside(googleSearchURL(input));
+  if (activeTabId === id) {
+    const nextIndex = Math.min(index, tabs.length - 1);
+    switchTab(tabs[nextIndex].id);
+  } else {
+    renderTabs();
+  }
+}
+
+function goBack() {
+  const tab = getActiveTab();
+
+  if (!tab || tab.historyIndex <= 0) return;
+
+  tab.historyIndex--;
+  tab.url = tab.history[tab.historyIndex];
+  tab.view = "page";
+
+  const url = tab.url;
+
+  showPage(url, "Previous Page");
+  updateNavigationButtons();
+}
+
+function goForward() {
+  const tab = getActiveTab();
+
+  if (!tab || tab.historyIndex >= tab.history.length - 1) return;
+
+  tab.historyIndex++;
+  tab.url = tab.history[tab.historyIndex];
+  tab.view = "page";
+
+  const url = tab.url;
+
+  showPage(url, "Next Page");
+  updateNavigationButtons();
+}
+
+function goHome() {
+  showHome();
+}
+
+function refreshPage() {
+  const tab = getActiveTab();
+
+  if (!tab || tab.view !== "page" || !tab.url) {
+    showHome();
     return;
   }
 
-  let url = input;
+  $("webFrame").src = tab.url;
+  $("statusText").textContent = "Refreshing website...";
+}
 
-  if (!/^https?:\/\//i.test(url)) {
-    url = "https://" + url;
+function submitSearch(query) {
+  const value = query.trim();
+
+  if (!value) return;
+
+  if (/^build\s+website\s+bd$/i.test(value)) {
+    openOutside(BUILD_WEBSITE_SEARCH_URL);
+    return;
   }
 
-  const host = hostFromURL(url);
+  const request = getSearchRequest(value);
+
+  if (request.mode === "embed") {
+    navigate(request.url, request.title);
+  } else {
+    openOutside(request.url);
+  }
+}
+
+function submitAddress(value) {
+  const address = value.trim();
+
+  if (!address) return;
+
+  if (/^build\s+website\s+bd$/i.test(address)) {
+    openOutside(BUILD_WEBSITE_ADDRESS_URL);
+    return;
+  }
+
+  if (!isWebsiteAddress(address)) {
+    const url = "https://www.google.com/search?q=" + encodeURIComponent(address);
+    openOutside(url);
+    return;
+  }
+
+  const url = normalizeAddress(address);
+  const host = getHost(url);
 
   if (isKnownBlockedHost(host)) {
     openOutside(url);
     return;
   }
 
-  browser.navigate(url);
-});
+  navigate(url, host || "Website");
+}
 
-/* Homepage search always opens Google results outside the iframe. */
+function openQuickLink(url) {
+  const host = getHost(url);
 
-bind("searchForm", "submit", (event) => {
-  event.preventDefault();
-
-  const query = $("searchInput").value.trim();
-  if (!query) return;
-
-  if (/^build\s+website\s+bd$/i.test(query)) {
-    openOutside(BUILD_WEBSITE_URL);
+  if (isKnownBlockedHost(host)) {
+    openOutside(url);
     return;
   }
 
-  openOutside(googleSearchURL(query));
-});
+  navigate(url, host || "Website");
+}
 
-/* Main navigation controls. */
-
-bind("backButton", "click", () => browser.back());
-bind("forwardButton", "click", () => browser.forward());
-bind("refreshButton", "click", () => browser.refresh());
-bind("homeButton", "click", () => browser.home());
-bind("externalButton", "click", () => browser.openOutside());
-bind("noticeOpenButton", "click", () => browser.openOutside());
-bind("newTabButton", "click", () => browser.createTab());
-
-bind("brandHome", "click", (event) => {
+$("searchForm").addEventListener("submit", (event) => {
   event.preventDefault();
-  browser.home();
+
+  const input = $("searchInput");
+  submitSearch(input.value);
 });
 
-/* Quick links open outside the embedded viewer. */
+$("addressForm").addEventListener("submit", (event) => {
+  event.preventDefault();
 
-document.querySelectorAll(".quick-link[data-url]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const url = button.dataset.url;
-    if (url) openOutside(url);
+  submitAddress($("addressInput").value);
+});
+
+$("searchEngine").addEventListener("change", () => {
+  const panel = $("searchForm");
+
+  panel.classList.remove("engine-changed");
+
+  requestAnimationFrame(() => {
+    panel.classList.add("engine-changed");
   });
 });
 
-/* Keyboard shortcuts. */
+$("backButton").addEventListener("click", goBack);
+$("forwardButton").addEventListener("click", goForward);
+$("refreshButton").addEventListener("click", refreshPage);
+$("homeButton").addEventListener("click", goHome);
+$("newTabButton").addEventListener("click", createTab);
+$("brandHome").addEventListener("click", (event) => {
+  event.preventDefault();
+  goHome();
+});
+
+$("externalButton").addEventListener("click", () => {
+  const tab = getActiveTab();
+
+  if (tab && tab.url) {
+    openOutside(tab.url);
+  }
+});
+
+document.querySelectorAll(".quick-link").forEach((button) => {
+  button.addEventListener("click", () => {
+    const url = button.dataset.url;
+
+    if (url) {
+      openQuickLink(url);
+    }
+  });
+});
 
 document.addEventListener("keydown", (event) => {
-  const isMac = navigator.platform.toLowerCase().includes("mac");
-  const modifier = isMac ? event.metaKey : event.ctrlKey;
-
-  if (modifier && event.key.toLowerCase() === "l") {
+  if (event.ctrlKey && event.key.toLowerCase() === "l") {
     event.preventDefault();
     $("addressInput").focus();
     $("addressInput").select();
   }
 
-  if (modifier && event.key.toLowerCase() === "t") {
+  if (event.ctrlKey && event.key.toLowerCase() === "t") {
     event.preventDefault();
-    browser.createTab();
+    createTab();
   }
 
-  if (event.altKey && event.key === "ArrowLeft") {
+  if (event.ctrlKey && event.key.toLowerCase() === "w") {
     event.preventDefault();
-    browser.back();
-  }
 
-  if (event.altKey && event.key === "ArrowRight") {
-    event.preventDefault();
-    browser.forward();
+    const tab = getActiveTab();
+
+    if (tab) {
+      closeTab(tab.id);
+    }
   }
 });
 
 makeParticles();
-browser.createTab();
+createTab();
